@@ -16,6 +16,7 @@
  */
 package com.example.dharamvir.syncphonecontactwithserver;
 
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,7 +24,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.amulyakhare.textdrawable.TextDrawable;
+import com.amulyakhare.textdrawable.util.ColorGenerator;
+
 import java.util.List;
+import java.util.Random;
 
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactViewHolder> {
 
@@ -43,6 +48,17 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
     public void onBindViewHolder(ContactViewHolder contactViewHolder, int i) {
         ContactInfo ci = contactList.get(i);
         contactViewHolder.vName.setText(ci.name);
+
+        ColorGenerator generator = ColorGenerator.MATERIAL; // or use DEFAULT
+
+        int color2 = generator.getColor(ci.name);
+
+        TextDrawable drawable = TextDrawable.builder()
+                .buildRound(Character.toString(ci.name.charAt(0)), color2);
+
+        contactViewHolder.vProfileImage.setImageDrawable(drawable);
+
+
         //contactViewHolder.vSurname.setText(ci.surname);
         //contactViewHolder.vEmail.setText(ci.email);
         //contactViewHolder.vTitle.setText(ci.name + " " + ci.surname);

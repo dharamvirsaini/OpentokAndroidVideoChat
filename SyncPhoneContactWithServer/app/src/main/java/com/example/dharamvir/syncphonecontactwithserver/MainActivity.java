@@ -9,6 +9,7 @@ import android.view.MenuItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -26,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
 
         ContactAdapter ca = new ContactAdapter(createList(30));
         recList.setAdapter(ca);
+
+
     }
 
 
@@ -34,7 +37,11 @@ public class MainActivity extends AppCompatActivity {
         List<ContactInfo> result = new ArrayList<ContactInfo>();
         for (int i=1; i <= size; i++) {
             ContactInfo ci = new ContactInfo();
-            ci.name = ContactInfo.NAME_PREFIX + i;
+
+            Random r = new Random();
+            char c = (char)(r.nextInt(26) + 'A');
+
+            ci.name = Character.toString(c);
             //ci.surname = ContactInfo.SURNAME_PREFIX + i;
             //ci.email = ContactInfo.EMAIL_PREFIX + i + "@test.com";
 

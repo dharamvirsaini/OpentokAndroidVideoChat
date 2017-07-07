@@ -12,14 +12,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <de.hdodenhof.circleimageview.CircleImageView
+        <ImageView
             xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/profile_image"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:src="@drawable/test"
-            app:civ_border_width="2dp"
-            app:civ_border_color="#FF000000"
             android:layout_margin="10dp" />
 
         <TextView
