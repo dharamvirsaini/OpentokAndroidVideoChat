@@ -19,8 +19,8 @@ package com.example.dharamvir.syncphonecontactwithserver;
 
 public class ContactInfo {
     protected String name;
-    protected String surname;
-    protected String email;
+    protected String phoneNumber;
+    protected String imageURL;
 
 
     protected static final String NAME_PREFIX = "Dharamvir_";

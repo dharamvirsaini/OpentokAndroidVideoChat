@@ -51,10 +51,10 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
 
         ColorGenerator generator = ColorGenerator.MATERIAL; // or use DEFAULT
 
-        int color2 = generator.getColor(ci.name);
+        int color = generator.getColor(ci.name);
 
         TextDrawable drawable = TextDrawable.builder()
-                .buildRound(Character.toString(ci.name.charAt(0)), color2);
+                .buildRound(Character.toString(ci.name.charAt(0)), color);
 
         contactViewHolder.vProfileImage.setImageDrawable(drawable);
 
