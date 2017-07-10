@@ -12,7 +12,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
@@ -25,6 +33,9 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.hbb20.CountryCodePicker;
+
+import org.json.JSONObject;
 
 import java.util.concurrent.TimeUnit;
 
@@ -62,6 +73,7 @@ public class PhoneAuthActivity extends AppCompatActivity implements
     private Button mVerifyButton;
     private Button mResendButton;
     private Button mSignOutButton;
+    private CountryCodePicker ccp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,8 +88,9 @@ public class PhoneAuthActivity extends AppCompatActivity implements
 
         FirebaseMessaging.getInstance().subscribeToTopic("my_little_topic");
 
-        Log.d("token is ", FirebaseInstanceId.getInstance().getToken());
+//        Log.d("token is ", FirebaseInstanceId.getInstance().getToken());
 
+        ccp = (CountryCodePicker) findViewById(R.id.ccp);
 
         // Restore instance state
         if (savedInstanceState != null) {
@@ -188,6 +201,8 @@ public class PhoneAuthActivity extends AppCompatActivity implements
         FirebaseUser currentUser = mAuth.getCurrentUser();
         updateUI(currentUser);
 
+      //  updateSignInCreds();
+
         // [START_EXCLUDE]
         if (mVerificationInProgress && validatePhoneNumber()) {
             startPhoneNumberVerification(mPhoneNumberField.getText().toString());
@@ -211,6 +226,8 @@ public class PhoneAuthActivity extends AppCompatActivity implements
 
     private void startPhoneNumberVerification(String phoneNumber) {
         // [START start_phone_auth]
+
+        phoneNumber = "+" + ccp.getSelectedCountryCode() + phoneNumber;
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 phoneNumber,        // Phone number to verify
                 60,                 // Timeout duration
@@ -253,8 +270,12 @@ public class PhoneAuthActivity extends AppCompatActivity implements
                             Log.d(TAG, "signInWithCredential:success");
 
                             FirebaseUser user = task.getResult().getUser();
+
+                            updateSignInCreds();
                             // [START_EXCLUDE]
                             updateUI(STATE_SIGNIN_SUCCESS, user);
+
+
                             // [END_EXCLUDE]
                         } else {
                             // Sign in failed, display a message and update the UI
@@ -318,6 +339,8 @@ public class PhoneAuthActivity extends AppCompatActivity implements
                         mVerificationField);
                 break;
             case STATE_VERIFY_SUCCESS:
+
+
                 // Verification has succeeded, proceed to firebase sign in
                 disableViews(mStartButton, mVerifyButton, mResendButton, mPhoneNumberField,
                         mVerificationField);
@@ -337,6 +360,16 @@ public class PhoneAuthActivity extends AppCompatActivity implements
                 break;
             case STATE_SIGNIN_SUCCESS:
                 // Np-op, handled by sign-in check
+                Intent in = new Intent(this, MainActivity.class);
+                in.putExtra("code", ccp.getSelectedCountryCode());
+                in.putExtra("phone", mPhoneNumberField.getText().toString());
+
+                startActivity(in);
+
+
+
+               // this.finish();
+
                 break;
         }
 
@@ -348,13 +381,41 @@ public class PhoneAuthActivity extends AppCompatActivity implements
         } else {
             // Signed in
             mPhoneNumberViews.setVisibility(View.GONE);
-            mSignedInViews.setVisibility(View.VISIBLE);
+           // mSignedInViews.setVisibility(View.VISIBLE);
 
             enableViews(mPhoneNumberField, mVerificationField);
             mPhoneNumberField.setText(null);
             mVerificationField.setText(null);
 
         }
+    }
+
+    private void updateSignInCreds() {
+
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url ="http://participateme.com/signin_app.php?phone=" + mPhoneNumberField.getText().toString() + "&phone_with_code=" + ccp.getSelectedCountryCode() + mPhoneNumberField.getText().toString() + "&device_token=" + FirebaseInstanceId.getInstance().getToken();
+//Log.d("url is " , url);
+
+
+// Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>(){
+                    @Override
+                    public void onResponse(String response) {
+
+                        Log.d("Response is ", response);
+                        // Display the first 500 characters of the response string.
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+                Toast.makeText(PhoneAuthActivity.this, "Internal error occured! Please try again!", Toast.LENGTH_SHORT).show();
+            }
+        });
+// Add the request to the RequestQueue.
+        queue.add(stringRequest);
     }
 
     private boolean validatePhoneNumber() {

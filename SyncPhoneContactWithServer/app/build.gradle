@@ -38,6 +38,8 @@ dependencies {
     compile 'com.google.android.gms:play-services-auth:11.0.2'
     compile 'com.hbb20:ccp:1.8'
     compile 'com.google.firebase:firebase-messaging:11.0.2'
+    compile 'com.android.volley:volley:1.0.0'
+    compile 'com.afollestad.material-dialogs:core:0.9.4.5'
 
 }
 apply plugin: 'com.google.gms.google-services'
