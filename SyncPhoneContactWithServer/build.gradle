@@ -15,6 +15,7 @@ buildscript {
 
 allprojects {
     repositories {
+        maven { url  "http://tokbox.bintray.com/maven" }
         jcenter()
     }
 }

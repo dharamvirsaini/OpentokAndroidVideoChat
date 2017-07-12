@@ -108,6 +108,8 @@ public class MainActivity extends AppCompatActivity {
 
             phonenumber = phonenumber.replaceAll("\\s+","").replaceFirst("^0*", "");
 
+            Log.d("phone number is ", phonenumber);
+
             phoneList.add(phonenumber);
             nameList.add(name);
 

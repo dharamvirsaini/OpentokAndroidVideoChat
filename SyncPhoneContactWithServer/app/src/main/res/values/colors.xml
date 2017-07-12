@@ -6,4 +6,9 @@
     <color name="bkg_card">#8C9EFF</color>
     <color name="grey_300">#E0E0E0</color>
     <color name="grey_100">#F5F5F5</color>
+
+    <color name="publisher_border_color">#FFFFFF</color>
+    <color name="call_bg">#35242e</color>
+
+
 </resources>

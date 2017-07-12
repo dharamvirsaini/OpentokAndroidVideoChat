@@ -19,6 +19,10 @@
         </activity>
         <activity android:name=".MainActivity"></activity>
 
+        <activity android:name=".OngoingCallActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"
+            ></activity>
+
         <service
             android:name=".MyInstanceIDListenerService">
             <intent-filter>
