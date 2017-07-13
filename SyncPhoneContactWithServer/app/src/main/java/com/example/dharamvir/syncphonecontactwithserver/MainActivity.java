@@ -47,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> deviceTokens = new ArrayList<>();
     MaterialDialog progressDialog;
 
+    ArrayList<ContactInfo> result;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         progressDialog = new MaterialDialog.Builder(MainActivity.this)
                 .cancelable(false)
                 .progress(true,100)
-                .content("Please wait Sonal...")
+                .content("Please wait...")
                 .build();
 
         progressDialog.show();
@@ -106,12 +108,20 @@ public class MainActivity extends AppCompatActivity {
 
             String phonenumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 
-            phonenumber = phonenumber.replaceAll("\\s+","").replaceFirst("^0*", "");
+            if(!phonenumber.contains("+"))
+
+            phonenumber = phonenumber.replaceAll("[\\W_]", "").replaceFirst("^0*", "");
+
+            else
+                phonenumber = "+" + phonenumber.replaceAll("[\\W_]", "").replaceFirst("^0*", "");
 
             Log.d("phone number is ", phonenumber);
 
-            phoneList.add(phonenumber);
-            nameList.add(name);
+            if(!phoneList.contains(phonenumber)) {
+                phoneList.add(phonenumber);
+
+                nameList.add(name);
+            }
 
 
 
@@ -155,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
 
                     createList();
 
-                    Toast.makeText(MainActivity.this,"Permission Granted, Now your application can access CONTACTS.", Toast.LENGTH_LONG).show();
+                  //  Toast.makeText(MainActivity.this,"Permission Granted, Now your application can access CONTACTS.", Toast.LENGTH_LONG).show();
 
                 } else {
 
@@ -212,6 +222,31 @@ public class MainActivity extends AppCompatActivity {
 
 
         return jsonstring1;
+    }
+
+    public void onContactClick(int pos) {
+
+        Log.d("name clicked is ", result.get(pos).name + "  token is " + deviceTokens.get(pos));
+
+        ArrayList<String> tokens = new ArrayList<>();
+        ArrayList<String> names = new ArrayList<>();
+
+        for(int i = 0; i < 1; i++)
+        {
+            tokens.add(deviceTokens.get(i));
+            names.add(result.get(i).name);
+
+        }
+
+        Intent in = new Intent(this, OngoingCallActivity.class);
+
+        in.putStringArrayListExtra("tokens", tokens);
+        in.putStringArrayListExtra("names", names);
+
+        startActivity(in);
+
+
+
     }
 
     protected class GetLogoDetails extends AsyncTask<String,Void,ArrayList<ContactInfo>> {
@@ -272,7 +307,7 @@ public class MainActivity extends AppCompatActivity {
             JSONArray array = obj.optJSONArray("isPhoneExists");
             JSONArray tokens = obj.optJSONArray("tokens");
 
-            ArrayList<ContactInfo> result = new ArrayList<>();
+             result = new ArrayList<>();
 
             for(int i = 0; i < array.length(); i++)
             {
@@ -305,7 +340,10 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(ArrayList<ContactInfo> s) {
             super.onPostExecute(s);
 
-            ContactAdapter ca = new ContactAdapter(s);
+            ContactAdapter ca = new ContactAdapter(s, MainActivity.this);
+
+
+
             recList.setAdapter(ca);
 
             progressDialog.cancel();

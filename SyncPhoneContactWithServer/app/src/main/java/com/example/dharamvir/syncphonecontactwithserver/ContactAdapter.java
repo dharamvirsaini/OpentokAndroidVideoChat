@@ -33,9 +33,11 @@ import java.util.Random;
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactViewHolder> {
 
     private List<ContactInfo> contactList;
+    MainActivity context;
 
-    public ContactAdapter(List<ContactInfo> contactList) {
+    public ContactAdapter(List<ContactInfo> contactList, MainActivity context) {
         this.contactList = contactList;
+        this.context = context;
     }
 
 
@@ -73,7 +75,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
             return new ContactViewHolder(itemView);
     }
 
-    public static class ContactViewHolder extends RecyclerView.ViewHolder {
+    public class ContactViewHolder extends RecyclerView.ViewHolder {
 
         protected TextView vName;
         protected ImageView vProfileImage;
@@ -84,6 +86,17 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
             super(v);
             vName =  (TextView) v.findViewById(R.id.txtName);
             vProfileImage = (ImageView)  v.findViewById(R.id.profile_image);
+
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    int pos = getAdapterPosition();
+
+                    context.onContactClick(pos);
+
+                }
+            });
 //            vEmail = (TextView)  v.findViewById(R.id.txtEmail);
 //            vTitle = (TextView) v.findViewById(R.id.title);
         }

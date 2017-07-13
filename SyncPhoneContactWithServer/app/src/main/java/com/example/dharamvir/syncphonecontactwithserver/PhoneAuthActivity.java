@@ -97,11 +97,13 @@ public class PhoneAuthActivity extends AppCompatActivity implements
             Log.d("in main activity ", getIntent().getExtras().toString());
             Log.d("in main activity ", getIntent().getExtras().getString("SessionID"));
             Log.d("in main activity ", getIntent().getExtras().getString("Token"));
+            Log.d("in main activity ", getIntent().getExtras().getString("Name"));
 
             Intent in = new Intent(this, OngoingCallActivity.class);
             in.putExtra("SESSION_ID", getIntent().getExtras().getString("SessionID"));
             in.putExtra("API_KEY", getIntent().getExtras().getString("API_KEY"));
             in.putExtra("TOKEN", getIntent().getExtras().getString("Token"));
+            in.putExtra("From", getIntent().getExtras().getString("Name"));
 
             startActivity(in);
             this.finish();
@@ -127,6 +129,7 @@ public class PhoneAuthActivity extends AppCompatActivity implements
        // SharedPreferences sp = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
 
        else {
+
 
             if (sharedpreferences.getString("code", null) != null) {
                 Log.d("code is ", sharedpreferences.getString("code", null) + sharedpreferences.getString("phone", null));
