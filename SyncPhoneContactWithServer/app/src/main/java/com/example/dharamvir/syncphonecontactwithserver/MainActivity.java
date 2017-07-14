@@ -15,6 +15,9 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -40,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
     Cursor cursor;
     RecyclerView recList;
+    public static final String IMAGE_ACCESS_URL = "http://contactsyncer.com/uploads/";
 
     public  static final int RequestPermissionCode  = 1 ;
     List<String> phoneList;
@@ -48,11 +52,17 @@ public class MainActivity extends AppCompatActivity {
     MaterialDialog progressDialog;
 
     ArrayList<ContactInfo> result;
+    TextView selectView;
+
+    public static MainActivity activityContext;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        activityContext = this;
 
         Intent in = getIntent();
 
@@ -69,6 +79,17 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d("MainActivity", "phone is " + phone + " and code is " + code);
 
+        ((ImageView) findViewById(R.id.add_contact)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent(Intent.ACTION_INSERT,
+                        ContactsContract.Contacts.CONTENT_URI);
+                startActivity(intent);
+
+            }
+        });
+
         recList = (RecyclerView) findViewById(R.id.cardList);
         recList.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(this);
@@ -82,6 +103,26 @@ public class MainActivity extends AppCompatActivity {
         {
             createList();
         }
+
+       selectView = ((TextView)findViewById(R.id.textView4));
+
+        selectView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(selectView.getText().equals("Select"))
+                {
+                    selectView.setText("Cancel");
+                }
+                else{
+                    selectView.setText("Select");
+                }
+
+                recList.getAdapter().notifyDataSetChanged();
+
+
+            }
+        });
 
 
 
@@ -231,12 +272,12 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<String> tokens = new ArrayList<>();
         ArrayList<String> names = new ArrayList<>();
 
-        for(int i = 0; i < 1; i++)
-        {
-            tokens.add(deviceTokens.get(i));
-            names.add(result.get(i).name);
+//        for(int i = 0; i < 1; i++)
+//        {
+            tokens.add(deviceTokens.get(pos));
+            names.add(result.get(pos).name);
 
-        }
+//        }
 
         Intent in = new Intent(this, OngoingCallActivity.class);
 
@@ -246,6 +287,33 @@ public class MainActivity extends AppCompatActivity {
         startActivity(in);
 
 
+
+    }
+
+    public void onContactClick(ArrayList<Integer> checkedPos) {
+
+        ArrayList<String> tokens = new ArrayList<>();
+        ArrayList<String> names = new ArrayList<>();
+
+        for(int i = 0; i < checkedPos.size(); i++)
+        {
+            tokens.add(deviceTokens.get(checkedPos.get(i)));
+            names.add(result.get(checkedPos.get(i)).name);
+
+        }
+
+        Intent in = new Intent(this, OngoingCallActivity.class);
+
+        in.putStringArrayListExtra("tokens", tokens);
+        in.putStringArrayListExtra("names", names);
+        if(checkedPos.size() > 1)
+        {
+            in.putExtra("multi", true);
+        }
+        else{
+            in.putExtra("multi", false);
+        }
+        startActivity(in);
 
     }
 
@@ -306,8 +374,13 @@ public class MainActivity extends AppCompatActivity {
 // Retrieve number array from JSON object.
             JSONArray array = obj.optJSONArray("isPhoneExists");
             JSONArray tokens = obj.optJSONArray("tokens");
+            JSONArray imageUrls = obj.optJSONArray("imageUrl");
 
-             result = new ArrayList<>();
+
+            result = new ArrayList<>();
+
+            deviceTokens.clear();
+            result.clear();
 
             for(int i = 0; i < array.length(); i++)
             {
@@ -319,6 +392,13 @@ public class MainActivity extends AppCompatActivity {
                     ContactInfo ci = new ContactInfo();
                     ci.phoneNumber = phoneList.get(i);
                     ci.name = nameList.get(i);
+
+                    if((imageUrls.optString(i).equals("noimage")) || imageUrls.optString(i).equals("")){
+                        ci.imageURL = imageUrls.optString(i);
+                    }
+                    else{
+                        ci.imageURL = IMAGE_ACCESS_URL + imageUrls.optString(i) + ".png";
+                    }
 
                     deviceTokens.add(tokens.optString(i));
 
@@ -350,6 +430,18 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(recList.getAdapter() != null)
+        {
+            createList();
+        }
+
+        //getDelegate().onStart();
     }
 
 }

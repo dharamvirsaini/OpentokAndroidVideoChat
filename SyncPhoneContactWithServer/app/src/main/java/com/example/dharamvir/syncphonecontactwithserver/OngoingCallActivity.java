@@ -66,6 +66,7 @@ public class OngoingCallActivity extends AppCompatActivity
 
     String callerName;
     List<String> names, tokens;
+    Boolean noResponse = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +84,7 @@ public class OngoingCallActivity extends AppCompatActivity
             OpenTokConfig.SESSION_ID = getIntent().getStringExtra("SESSION_ID");
             OpenTokConfig.TOKEN = getIntent().getStringExtra("TOKEN");
             callerName = getIntent().getStringExtra("From");
+            isMultiParty = getIntent().getBooleanExtra("multi", false);
 
         }
 
@@ -90,6 +92,7 @@ public class OngoingCallActivity extends AppCompatActivity
         {
             names = getIntent().getStringArrayListExtra("names");
             tokens = getIntent().getStringArrayListExtra("tokens");
+            isMultiParty = getIntent().getBooleanExtra("multi", false);
         }
 
         if(isMultiParty) {
@@ -239,12 +242,15 @@ new GetLogoDetails().execute();
 
             try {
 
-                jsonObject.put("from", getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("code", null) + getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("phone", null));
+                jsonObject.put("from", getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("name", null));
                 jsonObject.put("device_tokens", tokens);
 
                 jsonObject.put("SessionID", OpenTokConfig.SESSION_ID);
                 jsonObject.put("Token", OpenTokConfig.TOKEN);
                 jsonObject.put("API_KEY", OpenTokConfig.API_KEY);
+                jsonObject.put("API_KEY", OpenTokConfig.API_KEY);
+                jsonObject.put("multi", Boolean.toString(isMultiParty));
+
 
                // jsonObject.put("device_tokens", tokens);
 
@@ -274,7 +280,18 @@ new GetLogoDetails().execute();
         @Override
         protected void onPostExecute(Void aVoid) {
 
+            ((RelativeLayout) findViewById(R.id.multi_party)).postDelayed(new Runnable() {
+                @Override
+                public void run() {
 
+                    if(numUserConnected == 0)
+                    {
+                        noResponse = true;
+                        endCall();
+                    }
+
+                }
+            }, 20000);
 
             super.onPostExecute(aVoid);
         }
@@ -376,6 +393,8 @@ new GetLogoDetails().execute();
     public void onStreamReceived(Session session, Stream stream) {
         Log.d(TAG, "onStreamReceived: New stream " + stream.getStreamId() + " in session " + session.getSessionId());
 
+        numUserConnected++;
+
         if( ((LinearLayout)findViewById(R.id.calling_text_layout)).getVisibility() == View.VISIBLE)
             ((LinearLayout)findViewById(R.id.calling_text_layout)).setVisibility(View.INVISIBLE);
 
@@ -396,7 +415,7 @@ new GetLogoDetails().execute();
             return;
         }
 
-        numUserConnected++;
+
 
 
 
@@ -419,6 +438,9 @@ new GetLogoDetails().execute();
     public void onStreamDropped(Session session, Stream stream) {
         Log.d(TAG, "onStreamDropped: Stream " + stream.getStreamId() + " dropped from session " + session.getSessionId());
 
+        numUserConnected--;
+
+
         if(!isMultiParty)
         {
             if (mSubscriber != null) {
@@ -430,7 +452,6 @@ new GetLogoDetails().execute();
             return;
         }
 
-        numUserConnected--;
 
 
 
@@ -462,17 +483,20 @@ new GetLogoDetails().execute();
     private void endCall()
     {
 
+        if(!noResponse)
         ((TextView)findViewById(R.id.textView3)).setText("Call Ended...");
+        else
+            ((TextView)findViewById(R.id.textView3)).setText("No Response.. Call Ended...");
         ((LinearLayout)findViewById(R.id.calling_text_layout)).setVisibility(View.VISIBLE);
 
         ((TextView)findViewById(R.id.textView3)).postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent in = new Intent(OngoingCallActivity.this, MainActivity.class);
+               /* Intent in = new Intent(OngoingCallActivity.this, MainActivity.class);
                 in.putExtra("code", getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, Context.MODE_PRIVATE).getString("code", null));
                 in.putExtra("phone", getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, Context.MODE_PRIVATE).getString("phone", null));
 
-                startActivity(in);
+                startActivity(in);*/
                 OngoingCallActivity.this.finish();
 
             }

@@ -91,19 +91,23 @@ public class PhoneAuthActivity extends AppCompatActivity implements
         //Push notification
         sendBroadcast(new Intent("com.google.android.intent.action.GTALK_HEARTBEAT"));
         sendBroadcast(new Intent("com.google.android.intent.action.MCS_HEARTBEAT"));
+        ccp = (CountryCodePicker) findViewById(R.id.ccp);
+
 
         if(getIntent().getExtras() != null) {
 
             Log.d("in main activity ", getIntent().getExtras().toString());
             Log.d("in main activity ", getIntent().getExtras().getString("SessionID"));
             Log.d("in main activity ", getIntent().getExtras().getString("Token"));
-            Log.d("in main activity ", getIntent().getExtras().getString("Name"));
+            Log.d("in main activity ", getIntent().getExtras().getString("multi"));
 
             Intent in = new Intent(this, OngoingCallActivity.class);
             in.putExtra("SESSION_ID", getIntent().getExtras().getString("SessionID"));
             in.putExtra("API_KEY", getIntent().getExtras().getString("API_KEY"));
             in.putExtra("TOKEN", getIntent().getExtras().getString("Token"));
             in.putExtra("From", getIntent().getExtras().getString("Name"));
+            in.putExtra("multi", Boolean.parseBoolean(getIntent().getExtras().getString("multi")));
+           // isMultiParty = getIntent().getBooleanExtra("multi", false);
 
             startActivity(in);
             this.finish();
@@ -149,7 +153,7 @@ public class PhoneAuthActivity extends AppCompatActivity implements
 
 //        Log.d("token is ", FirebaseInstanceId.getInstance().getToken());
 
-            ccp = (CountryCodePicker) findViewById(R.id.ccp);
+
 
             // Restore instance state
             if (savedInstanceState != null) {
@@ -421,9 +425,8 @@ public class PhoneAuthActivity extends AppCompatActivity implements
                 break;
             case STATE_SIGNIN_SUCCESS:
                 // Np-op, handled by sign-in check
-                Intent in = new Intent(this, MainActivity.class);
-                in.putExtra("code", ccp.getSelectedCountryCode());
-                in.putExtra("phone", mPhoneNumberField.getText().toString());
+                Intent in = new Intent(this, EditProfileActivity.class);
+
 
                 SharedPreferences.Editor editor = sharedpreferences.edit();
                 editor.putString("code", ccp.getSelectedCountryCode());
@@ -447,12 +450,12 @@ public class PhoneAuthActivity extends AppCompatActivity implements
 
         } else {
             // Signed in
-            mPhoneNumberViews.setVisibility(View.GONE);
+         /*   mPhoneNumberViews.setVisibility(View.GONE);
            // mSignedInViews.setVisibility(View.VISIBLE);
 
             enableViews(mPhoneNumberField, mVerificationField);
             mPhoneNumberField.setText(null);
-            mVerificationField.setText(null);
+            mVerificationField.setText(null);*/
 
         }
     }

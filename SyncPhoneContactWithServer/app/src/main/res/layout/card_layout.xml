@@ -20,6 +20,16 @@
             android:src="@drawable/test"
             android:layout_margin="10dp" />
 
+        <de.hdodenhof.circleimageview.CircleImageView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/profile_image_circle"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/test"
+            android:layout_margin="10dp"
+            app:civ_border_width="2dp"
+            app:civ_border_color="#FF000000"/>
+
         <TextView
             android:id="@+id/txtName"
             android:layout_width="wrap_content"
@@ -32,6 +42,16 @@
             android:layout_toRightOf="@+id/profile_image"
             android:layout_centerVertical="true"
             android:textColor="#000000" />
+
+        <CheckBox
+            android:id="@+id/checkBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:visibility="gone"
+             />
 
     </RelativeLayout>
 
