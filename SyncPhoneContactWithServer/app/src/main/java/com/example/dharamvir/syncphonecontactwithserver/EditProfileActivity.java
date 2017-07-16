@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -19,6 +21,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,6 +50,15 @@ public class EditProfileActivity extends AppCompatActivity implements View.OnCli
         okImage = (ImageView) findViewById(R.id.imageView2);
 
         nameText = (EditText)findViewById(R.id.editText2);
+
+        if(getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("image_data", "noimage") != "noimage")
+        {
+            byte[] b = Base64.decode(getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("image_data", "noimage"), Base64.DEFAULT);
+             bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
+            profileImage.setImageBitmap(bitmap);
+
+            nameText.setText(getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("name", "Unknown"));
+        }
         
         profileImage.setOnClickListener(this);
         okImage.setOnClickListener(this);
@@ -135,6 +148,7 @@ else
             case R.id.imageView:
             {
                 showFileChooser();
+                break;
             }
 
             case R.id.imageView2:
@@ -147,7 +161,7 @@ else
 
     protected class GetLogoDetails extends AsyncTask<String,Void,String> {
 
-
+MaterialDialog progressDialog;
 
 
         public GetLogoDetails() {
@@ -158,6 +172,13 @@ else
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+
+            progressDialog = new MaterialDialog.Builder(EditProfileActivity.this)
+                    .content("Please wait...")
+                    .progress(true,100)
+                    .build();
+
+            progressDialog.show();
         }
 
         @Override
@@ -209,10 +230,20 @@ else
         protected void onPostExecute(String response) {
             super.onPostExecute(response);
 
+            progressDialog.cancel();
+
             if(response.equals("success"))
             {
                 SharedPreferences.Editor editor = getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).edit();
                 editor.putString("name", name);
+
+                if(getStringImage(bitmap) != "noimage") {
+
+
+                    editor.putString("image_data", getStringImage(bitmap));
+                }
+
+              //  editor.commit();
                // editor.putString("phone", "9650774271");
 
                 editor.commit();
@@ -222,6 +253,8 @@ else
                 in.putExtra("phone", getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("phone", null));
 
                 startActivity(in);
+
+                EditProfileActivity.this.finish();
             }
         }
     }

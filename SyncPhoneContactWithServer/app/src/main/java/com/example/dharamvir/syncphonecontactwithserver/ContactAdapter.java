@@ -28,10 +28,13 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -75,9 +78,16 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
         if(ci.imageURL.contains("png"))
         {
             contactViewHolder.vProfileImage.setVisibility(View.INVISIBLE);
-            contactViewHolder.vCircleProfileImage.setVisibility(View.INVISIBLE);
+          //  contactViewHolder.vCircleProfileImage.setVisibility(View.INVISIBLE);
 
-            new BitmapWorkerTask(contactViewHolder.vCircleProfileImage).execute(ci.imageURL);
+            Glide.with(context).load(ci.imageURL)
+                    .thumbnail(0.5f)
+                    .crossFade()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(contactViewHolder.vCircleProfileImage)
+            ;
+
+          //  new BitmapWorkerTask(contactViewHolder.vCircleProfileImage).execute(ci.imageURL);
         }
         else {
             contactViewHolder.vProfileImage.setVisibility(View.VISIBLE);
@@ -157,10 +167,22 @@ else
 
 if(checkedPos.size() > 0)
 {
+
+
     context.findViewById(R.id.button2).setVisibility(View.VISIBLE);
+    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)context.findViewById(R.id.add_contact_below).getLayoutParams();
+    params.removeRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+   // params.addRule(RelativeLayout.LEFT_OF, R.id.id_to_be_left_of);
+
+    context.findViewById(R.id.add_contact_below).setLayoutParams(params);
 }
-else
+else{
     context.findViewById(R.id.button2).setVisibility(View.GONE);
+                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)context.findViewById(R.id.add_contact_below).getLayoutParams();
+                    params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                    // params.addRule(RelativeLayout.LEFT_OF, R.id.id_to_be_left_of);
+
+                    context.findViewById(R.id.add_contact_below).setLayoutParams(params);}
 
                 }
             });

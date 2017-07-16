@@ -17,7 +17,7 @@
             android:id="@+id/add_contact"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            app:srcCompat="@drawable/add_contact_white" />
+            app:srcCompat="@drawable/my_profile" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -27,7 +27,7 @@
             android:elevation="20dp"
             android:text="Chats"
             android:textColor="@android:color/white"
-            android:textSize="22sp"
+            android:textSize="24sp"
             android:textStyle="bold" />
 
         <TextView
@@ -52,6 +52,16 @@
         android:layout_below="@+id/titleText"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        />
+
+    <ImageView
+        android:id="@+id/add_contact_below"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/add_user_blue"
+        android:layout_above="@+id/button2"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
         />
 
     <Button

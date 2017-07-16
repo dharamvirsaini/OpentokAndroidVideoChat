@@ -69,7 +69,6 @@ public class MyFcmListenerService extends FirebaseMessagingService {
                 // Set Text
                 .setContentText("Tap to pick the call")
                 // Add an Action Button below Notification
-                .addAction(R.drawable.mute, "Action Button", pIntent)
                 // Set PendingIntent into Notification
                 .setContentIntent(pIntent)
                 // Dismiss Notification

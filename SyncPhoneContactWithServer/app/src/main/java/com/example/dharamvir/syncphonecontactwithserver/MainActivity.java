@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<ContactInfo> result;
     TextView selectView;
 
+    Boolean fromPhoneCall = false;
+
     public static MainActivity activityContext;
 
 
@@ -83,12 +86,23 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                Intent intent = new Intent(MainActivity.this, EditProfileActivity.class);
+                startActivity(intent);
+
+            }
+        });
+
+        ((ImageView) findViewById(R.id.add_contact_below)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
                 Intent intent = new Intent(Intent.ACTION_INSERT,
                         ContactsContract.Contacts.CONTENT_URI);
                 startActivity(intent);
 
             }
         });
+
 
         recList = (RecyclerView) findViewById(R.id.cardList);
         recList.setHasFixedSize(true);
@@ -256,7 +270,10 @@ public class MainActivity extends AppCompatActivity {
         }catch(MalformedURLException e){
             Log.d("error","malformedUrl in Post");
         }catch (IOException e){
+
             Log.d("error","IOException in Post");
+            return null;
+
         }catch(Exception e){
             Log.d("error", "Exception in Post");
         }
@@ -284,6 +301,7 @@ public class MainActivity extends AppCompatActivity {
         in.putStringArrayListExtra("tokens", tokens);
         in.putStringArrayListExtra("names", names);
 
+        fromPhoneCall = true;
         startActivity(in);
 
 
@@ -291,6 +309,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onContactClick(ArrayList<Integer> checkedPos) {
+
+        if(checkedPos.size() > 4)
+        {
+            new MaterialDialog.Builder(this)
+                    .title("Error")
+                    .content("Please select maximum 4 participants")
+                    .positiveText("OK")
+                    .negativeText("Retry")
+                    .show();
+            return;
+        }
 
         ArrayList<String> tokens = new ArrayList<>();
         ArrayList<String> names = new ArrayList<>();
@@ -313,6 +342,8 @@ public class MainActivity extends AppCompatActivity {
         else{
             in.putExtra("multi", false);
         }
+
+        fromPhoneCall = true;
         startActivity(in);
 
     }
@@ -420,6 +451,22 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(ArrayList<ContactInfo> s) {
             super.onPostExecute(s);
 
+            if(s == null)
+            {
+                new MaterialDialog.Builder(MainActivity.this)
+                        .title("Network error occured. Please try again")
+                        .positiveText("Quit")
+                        .show();
+
+
+
+
+
+              /*  Toast.makeText(MainActivity.this, "Internal error occured. Please try again", Toast.LENGTH_LONG).show();
+                MainActivity.this.finish();*/
+                return;
+            }
+
             ContactAdapter ca = new ContactAdapter(s, MainActivity.this);
 
 
@@ -436,11 +483,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if(recList.getAdapter() != null)
+        if(recList.getAdapter() != null && fromPhoneCall == false)
         {
             createList();
         }
 
+        fromPhoneCall = false;
         //getDelegate().onStart();
     }
 

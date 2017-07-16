@@ -497,6 +497,8 @@ new GetLogoDetails().execute();
                 in.putExtra("phone", getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, Context.MODE_PRIVATE).getString("phone", null));
 
                 startActivity(in);*/
+
+               disconnectSession();
                 OngoingCallActivity.this.finish();
 
             }

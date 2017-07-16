@@ -94,7 +94,7 @@ public class PhoneAuthActivity extends AppCompatActivity implements
         ccp = (CountryCodePicker) findViewById(R.id.ccp);
 
 
-        if(getIntent().getExtras() != null) {
+        if(getIntent().getExtras() != null && getIntent().getExtras().getString("SessionID") != null) {
 
             Log.d("in main activity ", getIntent().getExtras().toString());
             Log.d("in main activity ", getIntent().getExtras().getString("SessionID"));
