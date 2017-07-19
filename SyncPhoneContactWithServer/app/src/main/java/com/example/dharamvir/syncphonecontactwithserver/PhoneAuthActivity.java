@@ -88,6 +88,12 @@ public class PhoneAuthActivity extends AppCompatActivity implements
 
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
 
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString("name", "Dharamvir");
+       // editor.putString("phone", "9650774271");
+
+        editor.commit();
+
         //Push notification
         sendBroadcast(new Intent("com.google.android.intent.action.GTALK_HEARTBEAT"));
         sendBroadcast(new Intent("com.google.android.intent.action.MCS_HEARTBEAT"));

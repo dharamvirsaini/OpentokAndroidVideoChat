@@ -142,7 +142,7 @@ public class OngoingCallActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
 
-                disconnectSession();
+             //   disconnectSession();
                 endCall();
             }
         });

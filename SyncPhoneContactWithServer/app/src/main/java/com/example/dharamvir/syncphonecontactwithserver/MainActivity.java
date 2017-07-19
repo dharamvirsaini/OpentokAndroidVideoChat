@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recList;
     public static final String IMAGE_ACCESS_URL = "http://contactsyncer.com/uploads/";
 
-    public  static final int RequestPermissionCode  = 1 ;
+    public static final int RequestPermissionCode = 1;
     List<String> phoneList;
     List<String> nameList;
     ArrayList<String> deviceTokens = new ArrayList<>();
@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
         progressDialog = new MaterialDialog.Builder(MainActivity.this)
                 .cancelable(false)
-                .progress(true,100)
+                .progress(true, 100)
                 .content("Please wait...")
                 .build();
 
@@ -112,23 +112,24 @@ public class MainActivity extends AppCompatActivity {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             EnableRuntimePermission();
-        }
-        else
-        {
+        } else {
             createList();
         }
 
-       selectView = ((TextView)findViewById(R.id.textView4));
+        selectView = ((TextView) findViewById(R.id.textView4));
 
         selectView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                if(selectView.getText().equals("Select"))
-                {
+                if (selectView.getText().equals("Select")) {
                     selectView.setText("Cancel");
-                }
-                else{
+                } else {
+                    MainActivity.this.findViewById(R.id.button2).setVisibility(View.VISIBLE);
+                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)MainActivity.this.findViewById(R.id.add_contact_below).getLayoutParams();
+                    params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+
+                    MainActivity.this.findViewById(R.id.button2).setVisibility(View.GONE);
                     selectView.setText("Select");
                 }
 
@@ -137,10 +138,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-
-
-
 
 
     }
@@ -153,34 +150,30 @@ public class MainActivity extends AppCompatActivity {
         phoneList = new ArrayList<>();
         nameList = new ArrayList<>();
 
-        cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,null, null, null);
+        cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
 
         while (cursor.moveToNext()) {
 
-           // ContactInfo ci = new ContactInfo();
+            // ContactInfo ci = new ContactInfo();
 
-           String  name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+            String name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
 
             String phonenumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 
-            if(!phonenumber.contains("+"))
+            if (!phonenumber.contains("+"))
 
-            phonenumber = phonenumber.replaceAll("[\\W_]", "").replaceFirst("^0*", "");
+                phonenumber = phonenumber.replaceAll("[\\W_]", "").replaceFirst("^0*", "");
 
             else
                 phonenumber = "+" + phonenumber.replaceAll("[\\W_]", "").replaceFirst("^0*", "");
 
             Log.d("phone number is ", phonenumber);
 
-            if(!phoneList.contains(phonenumber)) {
+            if (!phoneList.contains(phonenumber)) {
                 phoneList.add(phonenumber);
 
                 nameList.add(name);
             }
-
-
-
-
 
 
         }
@@ -192,18 +185,17 @@ public class MainActivity extends AppCompatActivity {
         return result;
     }
 
-    public void EnableRuntimePermission(){
+    public void EnableRuntimePermission() {
 
         if (ActivityCompat.shouldShowRequestPermissionRationale(
                 MainActivity.this,
-                Manifest.permission.READ_CONTACTS))
-        {
+                Manifest.permission.READ_CONTACTS)) {
 
-            Toast.makeText(MainActivity.this,"CONTACTS permission allows us to Access CONTACTS app", Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, "CONTACTS permission allows us to Access CONTACTS app", Toast.LENGTH_LONG).show();
 
         } else {
 
-            ActivityCompat.requestPermissions(MainActivity.this,new String[]{
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{
                     Manifest.permission.READ_CONTACTS}, RequestPermissionCode);
 
         }
@@ -220,11 +212,11 @@ public class MainActivity extends AppCompatActivity {
 
                     createList();
 
-                  //  Toast.makeText(MainActivity.this,"Permission Granted, Now your application can access CONTACTS.", Toast.LENGTH_LONG).show();
+                    //  Toast.makeText(MainActivity.this,"Permission Granted, Now your application can access CONTACTS.", Toast.LENGTH_LONG).show();
 
                 } else {
 
-                    Toast.makeText(MainActivity.this,"Permission Canceled, Now your application cannot access CONTACTS.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Permission Canceled, Now your application cannot access CONTACTS.", Toast.LENGTH_LONG).show();
 
                 }
                 break;
@@ -235,16 +227,15 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    public static String postObject(String completeUrl,JSONObject jsonObject)
-    {
+    public static String postObject(String completeUrl, JSONObject jsonObject) {
         DataOutputStream dataOutputStream;
         InputStream is;
-        String jsonstring1 ="";
+        String jsonstring1 = "";
 
-        try{
+        try {
             String jsonstring = jsonObject.toString();
             URL url = new URL(completeUrl);
-            HttpURLConnection httpURLConnection=(HttpURLConnection)url.openConnection();
+            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setDoOutput(true);
             httpURLConnection.setRequestMethod("POST");
             httpURLConnection.setConnectTimeout(15000);
@@ -259,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
             dataOutputStream.close();
 
             int httpResult = httpURLConnection.getResponseCode();
-            if(httpResult==HttpURLConnection.HTTP_OK) {
+            if (httpResult == HttpURLConnection.HTTP_OK) {
                 is = new BufferedInputStream(httpURLConnection.getInputStream());
                 Scanner s = new Scanner(is).useDelimiter("\\A");
                 if (s.hasNext()) {
@@ -267,14 +258,14 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-        }catch(MalformedURLException e){
-            Log.d("error","malformedUrl in Post");
-        }catch (IOException e){
+        } catch (MalformedURLException e) {
+            Log.d("error", "malformedUrl in Post");
+        } catch (IOException e) {
 
-            Log.d("error","IOException in Post");
+            Log.d("error", "IOException in Post");
             return null;
 
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.d("error", "Exception in Post");
         }
 
@@ -291,8 +282,8 @@ public class MainActivity extends AppCompatActivity {
 
 //        for(int i = 0; i < 1; i++)
 //        {
-            tokens.add(deviceTokens.get(pos));
-            names.add(result.get(pos).name);
+        tokens.add(deviceTokens.get(pos));
+        names.add(result.get(pos).name);
 
 //        }
 
@@ -305,13 +296,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(in);
 
 
-
     }
 
     public void onContactClick(ArrayList<Integer> checkedPos) {
 
-        if(checkedPos.size() > 4)
-        {
+        if (checkedPos.size() > 4) {
             new MaterialDialog.Builder(this)
                     .title("Error")
                     .content("Please select maximum 4 participants")
@@ -324,8 +313,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<String> tokens = new ArrayList<>();
         ArrayList<String> names = new ArrayList<>();
 
-        for(int i = 0; i < checkedPos.size(); i++)
-        {
+        for (int i = 0; i < checkedPos.size(); i++) {
             tokens.add(deviceTokens.get(checkedPos.get(i)));
             names.add(result.get(checkedPos.get(i)).name);
 
@@ -335,11 +323,9 @@ public class MainActivity extends AppCompatActivity {
 
         in.putStringArrayListExtra("tokens", tokens);
         in.putStringArrayListExtra("names", names);
-        if(checkedPos.size() > 1)
-        {
+        if (checkedPos.size() > 1) {
             in.putExtra("multi", true);
-        }
-        else{
+        } else {
             in.putExtra("multi", false);
         }
 
@@ -348,9 +334,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    protected class GetLogoDetails extends AsyncTask<String,Void,ArrayList<ContactInfo>> {
-
-
+    protected class GetLogoDetails extends AsyncTask<String, Void, ArrayList<ContactInfo>> {
 
 
         public GetLogoDetails() {
@@ -367,7 +351,6 @@ public class MainActivity extends AppCompatActivity {
         protected ArrayList<ContactInfo> doInBackground(String... params) {
 
             String requestUrl = "http://www.contactsyncer.com/verifyphonenumbers.php";
-
 
 
             JSONObject jsonObject = new JSONObject();
@@ -413,21 +396,18 @@ public class MainActivity extends AppCompatActivity {
             deviceTokens.clear();
             result.clear();
 
-            for(int i = 0; i < array.length(); i++)
-            {
+            for (int i = 0; i < array.length(); i++) {
 
 
                 //check if phone number exists on server
-                if(array.optString(i).equals("y"))
-                {
+                if (array.optString(i).equals("y")) {
                     ContactInfo ci = new ContactInfo();
                     ci.phoneNumber = phoneList.get(i);
                     ci.name = nameList.get(i);
 
-                    if((imageUrls.optString(i).equals("noimage")) || imageUrls.optString(i).equals("")){
+                    if ((imageUrls.optString(i).equals("noimage")) || imageUrls.optString(i).equals("")) {
                         ci.imageURL = imageUrls.optString(i);
-                    }
-                    else{
+                    } else {
                         ci.imageURL = IMAGE_ACCESS_URL + imageUrls.optString(i) + ".png";
                     }
 
@@ -438,7 +418,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
 
-                Log.d("array is " , array.optString(i));
+                Log.d("array is ", array.optString(i));
                 Log.d("token is ", tokens.optString(i));
 
             }
@@ -451,8 +431,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(ArrayList<ContactInfo> s) {
             super.onPostExecute(s);
 
-            if(s == null)
-            {
+            if (s == null) {
                 new MaterialDialog.Builder(MainActivity.this)
                         .title("Network error occured. Please try again")
                         .positiveText("Quit")
@@ -470,7 +449,6 @@ public class MainActivity extends AppCompatActivity {
             ContactAdapter ca = new ContactAdapter(s, MainActivity.this);
 
 
-
             recList.setAdapter(ca);
 
             progressDialog.cancel();
@@ -483,8 +461,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if(recList.getAdapter() != null && fromPhoneCall == false)
-        {
+        if (recList.getAdapter() != null && fromPhoneCall == true) {
             createList();
         }
 

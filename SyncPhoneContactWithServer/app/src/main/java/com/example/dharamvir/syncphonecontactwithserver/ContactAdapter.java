@@ -95,7 +95,9 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
 
             ColorGenerator generator = ColorGenerator.MATERIAL; // or use DEFAULT
 
-            int color = generator.getColor(ci.name);
+            int color = generator.getRandomColor();
+
+            Log.d("color is " , Integer.toString(color));
 
             TextDrawable drawable = TextDrawable.builder()
                     .buildRound(Character.toString(ci.name.charAt(0)), color);

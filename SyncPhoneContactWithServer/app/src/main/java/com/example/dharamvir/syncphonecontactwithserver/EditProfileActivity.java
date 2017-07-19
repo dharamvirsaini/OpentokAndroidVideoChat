@@ -232,7 +232,7 @@ MaterialDialog progressDialog;
 
             progressDialog.cancel();
 
-            if(response.equals("success"))
+            if(response != null && response.equals("success"))
             {
                 SharedPreferences.Editor editor = getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).edit();
                 editor.putString("name", name);
@@ -247,6 +247,8 @@ MaterialDialog progressDialog;
                // editor.putString("phone", "9650774271");
 
                 editor.commit();
+
+                MainActivity.activityContext.finish();
 
                 Intent in = new Intent(EditProfileActivity.this, MainActivity.class);
                 in.putExtra("code", getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("code", null));
