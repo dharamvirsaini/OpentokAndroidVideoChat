@@ -7,7 +7,7 @@
 3) Push notifications to show incoming call alerts(Using Firebase Push Notification services)  
 4) Profile image and name syncing with database.  
 
-# I have used Glide open source library because of the following:  
+<b> I have used Glide open source library because of the following:</b>  
 
 a) Handling ImageView recycling and cancelation in an adapter.  
 b) Complex image transformations with minimal memory use.  
