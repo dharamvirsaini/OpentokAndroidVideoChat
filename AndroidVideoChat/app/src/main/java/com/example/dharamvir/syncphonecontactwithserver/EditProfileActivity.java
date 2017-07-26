@@ -178,7 +178,7 @@ public class EditProfileActivity extends AppCompatActivity implements View.OnCli
                 j.printStackTrace();
             }
 
-            String response = MainActivity.postObject(requestUrl, jsonObject);
+            String response = DisplayContactsActivity.postObject(requestUrl, jsonObject);
 
             if (response == null) {
                 runOnUiThread(new Runnable() {
@@ -213,9 +213,9 @@ public class EditProfileActivity extends AppCompatActivity implements View.OnCli
 
                 editor.commit();
 
-                MainActivity.sActivityContext.finish();
+                DisplayContactsActivity.sActivityContext.finish();
 
-                Intent in = new Intent(EditProfileActivity.this, MainActivity.class);
+                Intent in = new Intent(EditProfileActivity.this, DisplayContactsActivity.class);
                 in.putExtra("code", getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("code", null));
                 in.putExtra("phone", getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("phone", null));
 

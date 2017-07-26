@@ -1,6 +1,5 @@
 package com.example.dharamvir.syncphonecontactwithserver;
 
-import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
@@ -17,12 +16,12 @@ import java.util.List;
 
 public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private MainActivity context;
+    private DisplayContactsActivity context;
     LayoutInflater inflater;
 
     List<SignalMessage> data;
 
-    public MessageAdapter(List<SignalMessage> data, MainActivity context) {
+    public MessageAdapter(List<SignalMessage> data, DisplayContactsActivity context) {
 
         this.context = context;
         inflater = LayoutInflater.from(context);

@@ -37,12 +37,12 @@ import java.util.List;
 import java.util.Scanner;
 
 
-public class MainActivity extends AppCompatActivity {
+public class DisplayContactsActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "DisplayContactsActivity";
     public static final String IMAGE_ACCESS_URL = "http://contactsyncer.com/uploads/";
     public static final int REQUEST_PERMISSION_CODE = 1;
-    public static MainActivity sActivityContext;
+    public static DisplayContactsActivity sActivityContext;
 
     private Cursor mCursor;
     private RecyclerView mRecList;
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         String code = in.getStringExtra("code");
         String phone = in.getStringExtra("phone");
 
-        mProgressDialog = new MaterialDialog.Builder(MainActivity.this)
+        mProgressDialog = new MaterialDialog.Builder(DisplayContactsActivity.this)
                 .cancelable(false)
                 .progress(true, 100)
                 .content("Please wait...")
@@ -77,13 +77,13 @@ public class MainActivity extends AppCompatActivity {
 
         mProgressDialog.show();
 
-        Log.d("MainActivity", "phone is " + phone + " and code is " + code);
+        Log.d("DisplayContactsActivity", "phone is " + phone + " and code is " + code);
 
         ((ImageView) findViewById(R.id.add_contact)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                Intent intent = new Intent(MainActivity.this, EditProfileActivity.class);
+                Intent intent = new Intent(DisplayContactsActivity.this, EditProfileActivity.class);
                 startActivity(intent);
 
             }
@@ -122,11 +122,11 @@ public class MainActivity extends AppCompatActivity {
                 if (mSelectView.getText().equals("Select")) {
                     mSelectView.setText("Cancel");
                 } else {
-                    MainActivity.this.findViewById(R.id.button2).setVisibility(View.VISIBLE);
-                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)MainActivity.this.findViewById(R.id.add_contact_below).getLayoutParams();
+                    DisplayContactsActivity.this.findViewById(R.id.button2).setVisibility(View.VISIBLE);
+                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)DisplayContactsActivity.this.findViewById(R.id.add_contact_below).getLayoutParams();
                     params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 
-                    MainActivity.this.findViewById(R.id.button2).setVisibility(View.GONE);
+                    DisplayContactsActivity.this.findViewById(R.id.button2).setVisibility(View.GONE);
                     mSelectView.setText("Select");
                 }
 
@@ -185,14 +185,14 @@ public class MainActivity extends AppCompatActivity {
     public void EnableRuntimePermission() {
 
         if (ActivityCompat.shouldShowRequestPermissionRationale(
-                MainActivity.this,
+                DisplayContactsActivity.this,
                 Manifest.permission.READ_CONTACTS)) {
 
-            Toast.makeText(MainActivity.this, "CONTACTS permission allows us to Access CONTACTS app", Toast.LENGTH_LONG).show();
+            Toast.makeText(DisplayContactsActivity.this, "CONTACTS permission allows us to Access CONTACTS app", Toast.LENGTH_LONG).show();
 
         } else {
 
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{
+            ActivityCompat.requestPermissions(DisplayContactsActivity.this, new String[]{
                     Manifest.permission.READ_CONTACTS}, REQUEST_PERMISSION_CODE);
 
         }
@@ -209,11 +209,11 @@ public class MainActivity extends AppCompatActivity {
 
                     createList();
 
-                    //  Toast.makeText(MainActivity.this,"Permission Granted, Now your application can access CONTACTS.", Toast.LENGTH_LONG).show();
+                    //  Toast.makeText(DisplayContactsActivity.this,"Permission Granted, Now your application can access CONTACTS.", Toast.LENGTH_LONG).show();
 
                 } else {
 
-                    Toast.makeText(MainActivity.this, "Permission Canceled, Now your application cannot access CONTACTS.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(DisplayContactsActivity.this, "Permission Canceled, Now your application cannot access CONTACTS.", Toast.LENGTH_LONG).show();
 
                 }
                 break;
@@ -356,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(MainActivity.this, "Internal error occured! Please try again!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(DisplayContactsActivity.this, "Internal error occured! Please try again!", Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -426,14 +426,14 @@ public class MainActivity extends AppCompatActivity {
             super.onPostExecute(s);
 
             if (s == null) {
-                new MaterialDialog.Builder(MainActivity.this)
+                new MaterialDialog.Builder(DisplayContactsActivity.this)
                         .title("Network error occured. Please try again")
                         .positiveText("Quit")
                         .show();
                 return;
             }
 
-            ContactAdapter ca = new ContactAdapter(s, MainActivity.this);
+            ContactAdapter ca = new ContactAdapter(s, DisplayContactsActivity.this);
 
 
             mRecList.setAdapter(ca);

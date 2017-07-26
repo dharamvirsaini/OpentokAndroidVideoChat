@@ -13,14 +13,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -34,10 +32,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.hbb20.CountryCodePicker;
-
-import org.json.JSONObject;
 
 import java.util.concurrent.TimeUnit;
 
@@ -88,13 +83,15 @@ public class PhoneAuthActivity extends AppCompatActivity implements
 
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
 
-       // Bypass phone verification to run it on emulator
+
+        /* Uncomment to bypass phone verification to run it on emulator
+
         SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.putString("name", "Dharamvir");
         editor.putString("phone", "9650774271");
 
         editor.commit();
-
+        */
 
         //Push notification
         sendBroadcast(new Intent("com.google.android.intent.action.GTALK_HEARTBEAT"));
@@ -127,7 +124,7 @@ public class PhoneAuthActivity extends AppCompatActivity implements
             if (sharedpreferences.getString("code", null) != null) {
                 Log.d("code is ", sharedpreferences.getString("code", null) + sharedpreferences.getString("phone", null));
 
-                Intent in = new Intent(this, MainActivity.class);
+                Intent in = new Intent(this, DisplayContactsActivity.class);
                 in.putExtra("code", sharedpreferences.getString("code", null));
                 in.putExtra("phone", sharedpreferences.getString("phone", null));
 

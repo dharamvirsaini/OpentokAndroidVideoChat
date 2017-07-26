@@ -40,7 +40,7 @@ public class OngoingCallActivity extends AppCompatActivity
         Publisher.PublisherListener,
         Session.SessionListener {
 
-    private static final String TAG = "simple-multiparty " + MainActivity.class.getSimpleName();
+    private static final String TAG = "simple-multiparty " + DisplayContactsActivity.class.getSimpleName();
 
     private final int MAX_NUM_SUBSCRIBERS = 4;
 
@@ -140,14 +140,14 @@ public class OngoingCallActivity extends AppCompatActivity
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    Log.d("MainActivity", "checked");
+                    Log.d("DisplayContactsActivity", "checked");
                     toggle.setBackgroundResource(R.drawable.mute);
                     if(mPublisher != null)
                         mPublisher.setPublishAudio(false);
                     // The toggle is enabled
                 } else {
                     // The toggle is disabled
-                    Log.d("MainActivity", "unchecked");
+                    Log.d("DisplayContactsActivity", "unchecked");
                     toggle.setBackgroundResource(R.drawable.unmute);
                     if(mPublisher != null)
                         mPublisher.setPublishAudio(true);
@@ -255,7 +255,7 @@ public class OngoingCallActivity extends AppCompatActivity
                 j.printStackTrace();
             }
 
-            String response = MainActivity.postObject(requestUrl, jsonObject);
+            String response = DisplayContactsActivity.postObject(requestUrl, jsonObject);
 
             if (response == null) {
                 runOnUiThread(new Runnable() {
@@ -482,7 +482,7 @@ public class OngoingCallActivity extends AppCompatActivity
         ((TextView)findViewById(R.id.textView3)).postDelayed(new Runnable() {
             @Override
             public void run() {
-               /* Intent in = new Intent(OngoingCallActivity.this, MainActivity.class);
+               /* Intent in = new Intent(OngoingCallActivity.this, DisplayContactsActivity.class);
                 in.putExtra("code", getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, Context.MODE_PRIVATE).getString("code", null));
                 in.putExtra("phone", getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, Context.MODE_PRIVATE).getString("phone", null));
 
