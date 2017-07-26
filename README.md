@@ -11,7 +11,8 @@ a) Handling ImageView recycling and cancelation in an adapter.
 b) Complex image transformations with minimal memory use.  
 c) Automatic memory and disk caching.  
 
-Additional points covered are:
+Additional points covered are:  
+
 a). Based on MVC architecture  
 b). Non UI blocking Code  
 c). Image Caching  
