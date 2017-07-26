@@ -9,9 +9,9 @@ Android app completely based on Opentok platform and is audio/video only. Follow
 
 I have used Glide open source library because of the following: 
 
-a)Handling ImageView recycling and cancelation in an adapter. 
-b)Complex image transformations with minimal memory use. 
-c)Automatic memory and disk caching. 
+1)Handling ImageView recycling and cancelation in an adapter. 
+2)Complex image transformations with minimal memory use. 
+3)Automatic memory and disk caching. 
 
 Additional points covered are: 
 a). Based on MVC architecture 
