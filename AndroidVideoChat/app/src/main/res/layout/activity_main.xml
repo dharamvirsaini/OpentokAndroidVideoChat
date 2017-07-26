@@ -63,6 +63,28 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         />
+<RelativeLayout
+    android:id="@+id/no_contacts_layout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true"
+    android:visibility="gone">
+
+    <TextView
+        android:id="@+id/noContacts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="Oops! No phone contacts using this app!" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/noContacts"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:text="Tap + below to create a new one!" />
+    </RelativeLayout>
 
     <Button
         android:id="@+id/button2"

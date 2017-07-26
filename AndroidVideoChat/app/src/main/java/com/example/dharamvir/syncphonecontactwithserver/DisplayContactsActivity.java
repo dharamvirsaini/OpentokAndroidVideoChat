@@ -52,7 +52,7 @@ public class DisplayContactsActivity extends AppCompatActivity {
     private MaterialDialog mProgressDialog;
     private ArrayList<ContactInfo> result;
      TextView mSelectView;
-    private Boolean mFromPhoneCall = false;
+    private Boolean mFromAddContact = false;
 
 
 
@@ -92,6 +92,8 @@ public class DisplayContactsActivity extends AppCompatActivity {
         ((ImageView) findViewById(R.id.add_contact_below)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                mFromAddContact = true;
 
                 Intent intent = new Intent(Intent.ACTION_INSERT,
                         ContactsContract.Contacts.CONTENT_URI);
@@ -285,7 +287,7 @@ public class DisplayContactsActivity extends AppCompatActivity {
         in.putStringArrayListExtra("tokens", tokens);
         in.putStringArrayListExtra("names", names);
 
-        mFromPhoneCall = true;
+       // mFromAddContact = true;
         startActivity(in);
 
 
@@ -322,7 +324,7 @@ public class DisplayContactsActivity extends AppCompatActivity {
             in.putExtra("multi", false);
         }
 
-        mFromPhoneCall = true;
+       // mFromAddContact = true;
         startActivity(in);
 
     }
@@ -433,10 +435,15 @@ public class DisplayContactsActivity extends AppCompatActivity {
                 return;
             }
 
-            ContactAdapter ca = new ContactAdapter(s, DisplayContactsActivity.this);
+            if(result.size() > 0) {
+                ((RelativeLayout)findViewById(R.id.no_contacts_layout)).setVisibility(View.GONE);
+                ContactAdapter ca = new ContactAdapter(s, DisplayContactsActivity.this);
+                mRecList.setAdapter(ca);
+            } else {
+                ((RelativeLayout)findViewById(R.id.no_contacts_layout)).setVisibility(View.VISIBLE);
+            }
 
 
-            mRecList.setAdapter(ca);
 
             mProgressDialog.cancel();
 
@@ -448,11 +455,12 @@ public class DisplayContactsActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if (mRecList.getAdapter() != null && mFromPhoneCall == true) {
+        //new contact added, refresh the list
+        if (mFromAddContact) {
             createList();
         }
 
-        mFromPhoneCall = false;
+        mFromAddContact = false;
         //getDelegate().onStart();
     }
 
