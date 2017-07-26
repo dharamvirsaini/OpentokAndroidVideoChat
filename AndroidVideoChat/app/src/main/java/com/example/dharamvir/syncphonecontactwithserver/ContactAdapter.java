@@ -18,7 +18,7 @@ package com.example.dharamvir.syncphonecontactwithserver;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -44,22 +44,21 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactViewHolder> {
 
-    private List<ContactInfo> contactList;
-    MainActivity context;
-    ArrayList<Integer> checkedPos = new ArrayList<>();
+    private List<ContactInfo> mContactList;
+    private MainActivity mContext;
+    private ArrayList<Integer> mCheckedPos = new ArrayList<>();
 
     public ContactAdapter(List<ContactInfo> contactList, final MainActivity context) {
-        this.contactList = contactList;
-        this.context = context;
+        this.mContactList = contactList;
+        this.mContext = context;
 
         context.findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                context.onContactClick(checkedPos);
+                context.onContactClick(mCheckedPos);
             }
         });
     }
@@ -67,36 +66,33 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
 
     @Override
     public int getItemCount() {
-        return contactList.size();
+        return mContactList.size();
     }
 
     @Override
     public void onBindViewHolder(ContactViewHolder contactViewHolder, int i) {
-        ContactInfo ci = contactList.get(i);
+        ContactInfo ci = mContactList.get(i);
         contactViewHolder.vName.setText(ci.name);
 
-        if(ci.imageURL.contains("png"))
-        {
-            contactViewHolder.vProfileImage.setVisibility(View.INVISIBLE);
-          //  contactViewHolder.vCircleProfileImage.setVisibility(View.INVISIBLE);
 
-            Glide.with(context).load(ci.imageURL)
+        if(ci.imageURL.contains("png"))
+        { //contact image exists on server
+            contactViewHolder.vProfileImage.setVisibility(View.INVISIBLE);
+
+            Glide.with(mContext).load(ci.imageURL)
                     .thumbnail(0.5f)
                     .crossFade()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(contactViewHolder.vCircleProfileImage)
-            ;
+                    .into(contactViewHolder.vCircleProfileImage);
 
-          //  new BitmapWorkerTask(contactViewHolder.vCircleProfileImage).execute(ci.imageURL);
         }
         else {
+            //Show circular image with first character of name
             contactViewHolder.vProfileImage.setVisibility(View.VISIBLE);
             contactViewHolder.vCircleProfileImage.setVisibility(View.INVISIBLE);
 
             ColorGenerator generator = ColorGenerator.MATERIAL; // or use DEFAULT
-
-            int color = generator.getRandomColor();
-
+            int color = generator.getColor(ci.name + ci.name.charAt(0));
             Log.d("color is " , Integer.toString(color));
 
             TextDrawable drawable = TextDrawable.builder()
@@ -105,24 +101,18 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
             contactViewHolder.vProfileImage.setImageDrawable(drawable);
         }
 
-        if(context.selectView.getText().equals("Select")) {
+        if(mContext.mSelectView.getText().equals("Select")) {
             contactViewHolder.vCheckBox.setChecked(false);
             contactViewHolder.vCheckBox.setVisibility(View.INVISIBLE);
-            checkedPos.clear();
+            mCheckedPos.clear();
         }
         else {
             contactViewHolder.vCheckBox.setVisibility(View.VISIBLE);
-            if(checkedPos.contains(i))
-            {
+
+            if(mCheckedPos.contains(i)){
                 contactViewHolder.vCheckBox.setChecked(true);
             }
-            //checkedPos = new ArrayList<>();
         }
-
-
-        //contactViewHolder.vSurname.setText(ci.surname);
-        //contactViewHolder.vEmail.setText(ci.email);
-        //contactViewHolder.vTitle.setText(ci.name + " " + ci.surname);
     }
 
     @Override
@@ -142,8 +132,6 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
         protected ImageView vProfileImage;
         protected CheckBox vCheckBox;
         protected ImageView vCircleProfileImage;
-       // protected TextView vEmail;
-       // protected TextView vTitle;
 
         public ContactViewHolder(View v) {
             super(v);
@@ -156,112 +144,40 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-                    Log.d("Contact Adapter", Boolean.toString(isChecked) + "-----" + Integer.toString(getAdapterPosition()));
-if(isChecked)
-{
-    checkedPos.add(getAdapterPosition());
-}
-else
-{
-    if(checkedPos.contains(getAdapterPosition()))
-    checkedPos.remove(new Integer(getAdapterPosition()));
-}
+            if(isChecked){
+                mCheckedPos.add(getAdapterPosition());
+            }
+            else{
+                if(mCheckedPos.contains(getAdapterPosition()))
+                mCheckedPos.remove(new Integer(getAdapterPosition()));
+            }
 
-if(checkedPos.size() > 0)
-{
+            if (mCheckedPos.size() > 0){
+                mContext.findViewById(R.id.button2).setVisibility(View.VISIBLE);
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mContext.findViewById(R.id.add_contact_below).getLayoutParams();
+                params.removeRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                mContext.findViewById(R.id.add_contact_below).setLayoutParams(params);
+            }
+            else {
+                mContext.findViewById(R.id.button2).setVisibility(View.GONE);
+                                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mContext.findViewById(R.id.add_contact_below).getLayoutParams();
+                                params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                                // params.addRule(RelativeLayout.LEFT_OF, R.id.id_to_be_left_of);
 
+                                mContext.findViewById(R.id.add_contact_below).setLayoutParams(params);}
 
-    context.findViewById(R.id.button2).setVisibility(View.VISIBLE);
-    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)context.findViewById(R.id.add_contact_below).getLayoutParams();
-    params.removeRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-   // params.addRule(RelativeLayout.LEFT_OF, R.id.id_to_be_left_of);
-
-    context.findViewById(R.id.add_contact_below).setLayoutParams(params);
-}
-else{
-    context.findViewById(R.id.button2).setVisibility(View.GONE);
-                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)context.findViewById(R.id.add_contact_below).getLayoutParams();
-                    params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                    // params.addRule(RelativeLayout.LEFT_OF, R.id.id_to_be_left_of);
-
-                    context.findViewById(R.id.add_contact_below).setLayoutParams(params);}
-
-                }
-            });
+                            }
+                        });
 
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
                     int pos = getAdapterPosition();
-
-                    context.onContactClick(pos);
+                    mContext.onContactClick(pos);
 
                 }
             });
-//            vEmail = (TextView)  v.findViewById(R.id.txtEmail);
-//            vTitle = (TextView) v.findViewById(R.id.title);
         }
-    }
-}
-
-class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
-    private final WeakReference<ImageView> imageViewReference;
-    private String imageUrl;
-
-    public BitmapWorkerTask(ImageView imageView) {
-        // Use a WeakReference to ensure the ImageView can be garbage
-        // collected
-        imageViewReference = new WeakReference<ImageView>(imageView);
-    }
-
-    // Decode image in background.
-    @Override
-    protected Bitmap doInBackground(String... params) {
-        imageUrl = params[0];
-        return LoadImage(imageUrl);
-    }
-
-    // Once complete, see if ImageView is still around and set bitmap.
-    @Override
-    protected void onPostExecute(Bitmap bitmap) {
-        if (imageViewReference != null && bitmap != null) {
-            final ImageView imageView = imageViewReference.get();
-            if (imageView != null) {
-                imageView.setImageBitmap(bitmap);
-                imageView.setVisibility(View.VISIBLE);
-            }
-        }
-    }
-
-    private Bitmap LoadImage(String URL) {
-        Bitmap bitmap = null;
-        InputStream in = null;
-        try {
-            in = OpenHttpConnection(URL);
-            bitmap = BitmapFactory.decodeStream(in);
-            in.close();
-        } catch (IOException e1) {
-        }
-        return bitmap;
-    }
-
-    private InputStream OpenHttpConnection(String strURL)
-            throws IOException {
-        InputStream inputStream = null;
-        URL url = new URL(strURL);
-        URLConnection conn = url.openConnection();
-
-        try {
-            HttpURLConnection httpConn = (HttpURLConnection) conn;
-            httpConn.setRequestMethod("GET");
-            httpConn.connect();
-
-            if (httpConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                inputStream = httpConn.getInputStream();
-            }
-        } catch (Exception ex) {
-        }
-        return inputStream;
     }
 }

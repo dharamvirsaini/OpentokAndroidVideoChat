@@ -88,11 +88,13 @@ public class PhoneAuthActivity extends AppCompatActivity implements
 
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
 
+       // Bypass phone verification to run it on emulator
         SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.putString("name", "Dharamvir");
-       // editor.putString("phone", "9650774271");
+        editor.putString("phone", "9650774271");
 
         editor.commit();
+
 
         //Push notification
         sendBroadcast(new Intent("com.google.android.intent.action.GTALK_HEARTBEAT"));
@@ -101,11 +103,12 @@ public class PhoneAuthActivity extends AppCompatActivity implements
 
 
         if(getIntent().getExtras() != null && getIntent().getExtras().getString("SessionID") != null) {
+            //incoming call check
 
-            Log.d("in main activity ", getIntent().getExtras().toString());
-            Log.d("in main activity ", getIntent().getExtras().getString("SessionID"));
-            Log.d("in main activity ", getIntent().getExtras().getString("Token"));
-            Log.d("in main activity ", getIntent().getExtras().getString("multi"));
+            Log.d(TAG, getIntent().getExtras().toString());
+            Log.d(TAG, getIntent().getExtras().getString("SessionID"));
+            Log.d(TAG, getIntent().getExtras().getString("Token"));
+            Log.d(TAG, getIntent().getExtras().getString("multi"));
 
             Intent in = new Intent(this, OngoingCallActivity.class);
             in.putExtra("SESSION_ID", getIntent().getExtras().getString("SessionID"));
@@ -118,28 +121,8 @@ public class PhoneAuthActivity extends AppCompatActivity implements
             startActivity(in);
             this.finish();
 
-         /*   Bundle bundle = getIntent().getExtras();
-            if (bundle != null) {
-                for (String key : bundle.keySet()) {
-                    Object value = bundle.get(key);
-                    Log.d(TAG, String.format("%s %s (%s)", key,
-                            value.toString(), value.getClass().getName()));
-                }
-            }*/
-
-           /* Log.d("in main activity ", getIntent().getExtras().toString());
-            Log.d("in main activity ", getIntent().getStringExtra("SessionID"));
-            Log.d("in main activity ", getIntent().getStringExtra("Token"));*/
         }
-
-       // FirebaseMessaging.getInstance().subscribeToTopic("my_little_topic");
-
-      //  FirebaseMessaging.getInstance().unsubscribeFromTopic("my_little_topic");
-
-       // SharedPreferences sp = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-
        else {
-
 
             if (sharedpreferences.getString("code", null) != null) {
                 Log.d("code is ", sharedpreferences.getString("code", null) + sharedpreferences.getString("phone", null));
@@ -154,14 +137,6 @@ public class PhoneAuthActivity extends AppCompatActivity implements
             }
 
 
-            //FirebaseMessaging.getInstance().subscribeToTopic("my_little_topic");
-
-
-//        Log.d("token is ", FirebaseInstanceId.getInstance().getToken());
-
-
-
-            // Restore instance state
             if (savedInstanceState != null) {
                 onRestoreInstanceState(savedInstanceState);
             }
@@ -456,13 +431,6 @@ public class PhoneAuthActivity extends AppCompatActivity implements
 
         } else {
             // Signed in
-         /*   mPhoneNumberViews.setVisibility(View.GONE);
-           // mSignedInViews.setVisibility(View.VISIBLE);
-
-            enableViews(mPhoneNumberField, mVerificationField);
-            mPhoneNumberField.setText(null);
-            mVerificationField.setText(null);*/
-
         }
     }
 
@@ -470,17 +438,14 @@ public class PhoneAuthActivity extends AppCompatActivity implements
 
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="http://participateme.com/signin_app.php?phone=" + mPhoneNumberField.getText().toString() + "&phone_with_code=" + ccp.getSelectedCountryCode() + mPhoneNumberField.getText().toString() + "&device_token=" + FirebaseInstanceId.getInstance().getToken();
-//Log.d("url is " , url);
+        String url = Constants.SIGN_UP_REQUEST_URL + "?phone=" + mPhoneNumberField.getText().toString() + "&phone_with_code=" + ccp.getSelectedCountryCode() + mPhoneNumberField.getText().toString() + "&device_token=" + FirebaseInstanceId.getInstance().getToken();
 
-
-// Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>(){
                     @Override
                     public void onResponse(String response) {
 
-                        Log.d("Response is ", response);
+                        Log.d(TAG, response);
                         // Display the first 500 characters of the response string.
                     }
                 }, new Response.ErrorListener() {

@@ -1,15 +1,10 @@
 package com.example.dharamvir.syncphonecontactwithserver;
 
-import android.Manifest;
-import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -19,6 +14,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.opentok.android.BaseVideoRenderer;
 import com.opentok.android.OpentokError;
 import com.opentok.android.Publisher;
@@ -27,7 +28,6 @@ import com.opentok.android.Session;
 import com.opentok.android.Stream;
 import com.opentok.android.Subscriber;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -78,6 +78,7 @@ public class OngoingCallActivity extends AppCompatActivity
 
         if(getIntent().getExtras() != null && getIntent().getStringExtra("API_KEY") != null)
         {
+            //incoming call request
             isIncoming = true;
             Log.d("apikey", getIntent().getStringExtra("API_KEY") + "  " + getIntent().getStringExtra("SESSION_ID") + "   " + getIntent().getStringExtra("TOKEN"));
             OpenTokConfig.API_KEY = getIntent().getStringExtra("API_KEY");
@@ -87,38 +88,29 @@ public class OngoingCallActivity extends AppCompatActivity
             isMultiParty = getIntent().getBooleanExtra("multi", false);
 
         }
-
-        else
-        {
+        else {
             names = getIntent().getStringArrayListExtra("names");
             tokens = getIntent().getStringArrayListExtra("tokens");
             isMultiParty = getIntent().getBooleanExtra("multi", false);
         }
 
-        if(isMultiParty) {
-
+        if (isMultiParty) {
             ((FrameLayout) findViewById(R.id.single_party)).setVisibility(View.GONE);
             mPublisherViewContainer = (RelativeLayout) findViewById(R.id.publisherview);
         }
-        else
-        {
+        else {
             ((RelativeLayout) findViewById(R.id.multi_party)).setVisibility(View.GONE);
             mPublisherViewContainer_FrameLayout = (FrameLayout)findViewById(R.id.publisher_container_framelayout);
             mSubscriberViewContainer = (FrameLayout)findViewById(R.id.subscriber_container);
         }
 
 
-        if(isIncoming == true) {
-            mSession = new Session.Builder(OngoingCallActivity.this, OpenTokConfig.API_KEY, OpenTokConfig.SESSION_ID).build();
-            mSession.setSessionListener(this);
-            mSession.connect(OpenTokConfig.TOKEN);
-
-            ((TextView)findViewById(R.id.textView2)).setText(callerName);
+        if (isIncoming == true) {
+            connectToSession();
         }
-        else{
+        else {
             if(names.size() > 1)
             ((TextView)findViewById(R.id.textView2)).setText(names.get(0) + " and " + Integer.toString(names.size() - 1) + " others");
-
             else
                 ((TextView)findViewById(R.id.textView2)).setText(names.get(0));
 
@@ -126,8 +118,6 @@ public class OngoingCallActivity extends AppCompatActivity
         }
 
         final ToggleButton  toggle = (ToggleButton) findViewById(R.id.toggle);
-
-     //  Log.d("toggle default", Boolean.toString(toggle.isChecked()));
 
         ((ImageView)findViewById(R.id.swap_camera)).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -165,66 +155,80 @@ public class OngoingCallActivity extends AppCompatActivity
             }
         });
 
-
-   /*     final Button swapCamera = (Button) findViewById(R.id.swapCamera);
-        swapCamera.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (mPublisher == null) {
-                    return;
-                }
-                mPublisher.cycleCamera();
-            }
-        });
-
-       final ToggleButton toggleAudio = (ToggleButton) findViewById(R.id.toggleAudio);
-        toggleAudio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (mPublisher == null) {
-                    return;
-                }
-                if (isChecked) {
-                    mPublisher.setPublishAudio(true);
-                } else {
-                    mPublisher.setPublishAudio(false);
-                }
-            }
-        });
-
-        final ToggleButton toggleVideo = (ToggleButton) findViewById(R.id.toggleVideo);
-        toggleVideo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (mPublisher == null) {
-                    return;
-                }
-                if (isChecked) {
-                    mPublisher.setPublishVideo(true);
-                } else {
-                    mPublisher.setPublishVideo(false);
-                }
-            }
-        });
-*/
-        // requestPermissions();
     }
 
     private void connectToSession() {
 
-        mSession = new Session.Builder(OngoingCallActivity.this, OpenTokConfig.API_KEY, OpenTokConfig.SESSION_ID).build();
-        mSession.setSessionListener(OngoingCallActivity.this);
-        mSession.connect(OpenTokConfig.TOKEN);
+        final Long time = System.currentTimeMillis();
+        Log.d("time is " , Long.toString(time));
 
-new GetLogoDetails().execute();
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = null;
+
+        if(!isIncoming)
+        url = Constants.SERVER_URL + Long.toString(time);
+        else
+            url = Constants.SERVER_URL + OpenTokConfig.TOKEN;
+
+
+        Log.d("url is " , url);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>(){
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("Response is ", response);
+
+                        JSONObject obj = null;
+                        try {
+                            obj = new JSONObject(response);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            //return null;
+                        }
+
+                        try {
+                            OpenTokConfig.API_KEY = obj.getString("apiKey");
+                            OpenTokConfig.SESSION_ID = obj.getString("sessionId");
+                            OpenTokConfig.TOKEN = obj.getString("token");
+                            OpenTokConfig.time = Long.toString(time);
+
+                            if(!isIncoming){
+
+                                mSession = new Session.Builder(OngoingCallActivity.this, OpenTokConfig.API_KEY, OpenTokConfig.SESSION_ID).build();
+                                mSession.setSessionListener(OngoingCallActivity.this);
+                                mSession.connect(OpenTokConfig.TOKEN);
+
+                                new NotifyCaller().execute();
+                            }
+
+                            else
+                            {
+                                mSession = new Session.Builder(OngoingCallActivity.this, OpenTokConfig.API_KEY, OpenTokConfig.SESSION_ID).build();
+                                mSession.setSessionListener(OngoingCallActivity.this);
+                                mSession.connect(OpenTokConfig.TOKEN);
+
+                                ((TextView)findViewById(R.id.textView2)).setText(callerName);
+                            }
+
+                            Log.d("credentials are ", obj.getString("apiKey") + obj.getString("sessionId") + obj.getString("token"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        // Display the first 500 characters of the response string.
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+                Toast.makeText(OngoingCallActivity.this, "Internal error occured! Please try again!", Toast.LENGTH_SHORT).show();
+            }
+        });
+// Add the request to the RequestQueue.
+        queue.add(stringRequest);
     }
 
-    protected class GetLogoDetails extends AsyncTask<String,Void,Void> {
-
-
-
-
-        public GetLogoDetails() {
-
-
-        }
+    protected class NotifyCaller extends AsyncTask<String,Void,Void> {
 
         @Override
         protected void onPreExecute() {
@@ -234,9 +238,7 @@ new GetLogoDetails().execute();
         @Override
         protected Void doInBackground(String... params) {
 
-            String requestUrl = "http://www.contactsyncer.com/notifycaller.php";
-
-
+            String requestUrl = Constants.NOTIFY_CALLER_REQUEST_URL;
 
             JSONObject jsonObject = new JSONObject();
 
@@ -244,16 +246,10 @@ new GetLogoDetails().execute();
 
                 jsonObject.put("from", getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("name", null));
                 jsonObject.put("device_tokens", tokens);
-
                 jsonObject.put("SessionID", OpenTokConfig.SESSION_ID);
-                jsonObject.put("Token", OpenTokConfig.TOKEN);
-                jsonObject.put("API_KEY", OpenTokConfig.API_KEY);
+                jsonObject.put("Token", OpenTokConfig.time);
                 jsonObject.put("API_KEY", OpenTokConfig.API_KEY);
                 jsonObject.put("multi", Boolean.toString(isMultiParty));
-
-
-               // jsonObject.put("device_tokens", tokens);
-
 
             } catch (JSONException j) {
                 j.printStackTrace();
@@ -415,11 +411,6 @@ new GetLogoDetails().execute();
             return;
         }
 
-
-
-
-
-
         final Subscriber subscriber = new Subscriber.Builder(OngoingCallActivity.this, stream).build();
         mSession.subscribe(subscriber);
         mSubscribers.add(subscriber);
@@ -439,7 +430,6 @@ new GetLogoDetails().execute();
         Log.d(TAG, "onStreamDropped: Stream " + stream.getStreamId() + " dropped from session " + session.getSessionId());
 
         numUserConnected--;
-
 
         if(!isMultiParty)
         {
@@ -472,7 +462,6 @@ new GetLogoDetails().execute();
         if(numUserConnected == 0)
             endCall();
 
-
     }
 
     @Override
@@ -487,6 +476,7 @@ new GetLogoDetails().execute();
         ((TextView)findViewById(R.id.textView3)).setText("Call Ended...");
         else
             ((TextView)findViewById(R.id.textView3)).setText("No Response.. Call Ended...");
+
         ((LinearLayout)findViewById(R.id.calling_text_layout)).setVisibility(View.VISIBLE);
 
         ((TextView)findViewById(R.id.textView3)).postDelayed(new Runnable() {

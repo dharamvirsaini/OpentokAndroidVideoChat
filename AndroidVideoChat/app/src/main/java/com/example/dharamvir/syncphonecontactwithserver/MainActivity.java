@@ -13,8 +13,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -36,28 +34,27 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.Scanner;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    Cursor cursor;
-    RecyclerView recList;
+    private static final String TAG = "MainActivity";
     public static final String IMAGE_ACCESS_URL = "http://contactsyncer.com/uploads/";
+    public static final int REQUEST_PERMISSION_CODE = 1;
+    public static MainActivity sActivityContext;
 
-    public static final int RequestPermissionCode = 1;
-    List<String> phoneList;
-    List<String> nameList;
-    ArrayList<String> deviceTokens = new ArrayList<>();
-    MaterialDialog progressDialog;
+    private Cursor mCursor;
+    private RecyclerView mRecList;
+    private List<String> mPhoneList;
+    private List<String> mNameList;
+    private ArrayList<String> mDeviceTokens = new ArrayList<>();
+    private MaterialDialog mProgressDialog;
+    private ArrayList<ContactInfo> result;
+     TextView mSelectView;
+    private Boolean mFromPhoneCall = false;
 
-    ArrayList<ContactInfo> result;
-    TextView selectView;
 
-    Boolean fromPhoneCall = false;
-
-    public static MainActivity activityContext;
 
 
     @Override
@@ -65,20 +62,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        activityContext = this;
+        sActivityContext = this;
 
         Intent in = getIntent();
 
         String code = in.getStringExtra("code");
         String phone = in.getStringExtra("phone");
 
-        progressDialog = new MaterialDialog.Builder(MainActivity.this)
+        mProgressDialog = new MaterialDialog.Builder(MainActivity.this)
                 .cancelable(false)
                 .progress(true, 100)
                 .content("Please wait...")
                 .build();
 
-        progressDialog.show();
+        mProgressDialog.show();
 
         Log.d("MainActivity", "phone is " + phone + " and code is " + code);
 
@@ -104,11 +101,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        recList = (RecyclerView) findViewById(R.id.cardList);
-        recList.setHasFixedSize(true);
+        mRecList = (RecyclerView) findViewById(R.id.cardList);
+        mRecList.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
-        recList.setLayoutManager(llm);
+        mRecList.setLayoutManager(llm);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             EnableRuntimePermission();
@@ -116,24 +113,24 @@ public class MainActivity extends AppCompatActivity {
             createList();
         }
 
-        selectView = ((TextView) findViewById(R.id.textView4));
+        mSelectView = ((TextView) findViewById(R.id.textView4));
 
-        selectView.setOnClickListener(new View.OnClickListener() {
+        mSelectView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                if (selectView.getText().equals("Select")) {
-                    selectView.setText("Cancel");
+                if (mSelectView.getText().equals("Select")) {
+                    mSelectView.setText("Cancel");
                 } else {
                     MainActivity.this.findViewById(R.id.button2).setVisibility(View.VISIBLE);
                     RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)MainActivity.this.findViewById(R.id.add_contact_below).getLayoutParams();
                     params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 
                     MainActivity.this.findViewById(R.id.button2).setVisibility(View.GONE);
-                    selectView.setText("Select");
+                    mSelectView.setText("Select");
                 }
 
-                recList.getAdapter().notifyDataSetChanged();
+                mRecList.getAdapter().notifyDataSetChanged();
 
 
             }
@@ -147,18 +144,18 @@ public class MainActivity extends AppCompatActivity {
 
         List<ContactInfo> result = new ArrayList<ContactInfo>();
 
-        phoneList = new ArrayList<>();
-        nameList = new ArrayList<>();
+        mPhoneList = new ArrayList<>();
+        mNameList = new ArrayList<>();
 
-        cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+        mCursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
 
-        while (cursor.moveToNext()) {
+        while (mCursor.moveToNext()) {
 
             // ContactInfo ci = new ContactInfo();
 
-            String name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+            String name = mCursor.getString(mCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
 
-            String phonenumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            String phonenumber = mCursor.getString(mCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 
             if (!phonenumber.contains("+"))
 
@@ -169,18 +166,18 @@ public class MainActivity extends AppCompatActivity {
 
             Log.d("phone number is ", phonenumber);
 
-            if (!phoneList.contains(phonenumber)) {
-                phoneList.add(phonenumber);
+            if (!mPhoneList.contains(phonenumber)) {
+                mPhoneList.add(phonenumber);
 
-                nameList.add(name);
+                mNameList.add(name);
             }
 
 
         }
 
-        cursor.close();
+        mCursor.close();
 
-        new GetLogoDetails().execute();
+        new VerifyPhoneNumbers().execute();
 
         return result;
     }
@@ -196,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
 
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{
-                    Manifest.permission.READ_CONTACTS}, RequestPermissionCode);
+                    Manifest.permission.READ_CONTACTS}, REQUEST_PERMISSION_CODE);
 
         }
     }
@@ -206,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
 
         switch (RC) {
 
-            case RequestPermissionCode:
+            case REQUEST_PERMISSION_CODE:
 
                 if (PResult.length > 0 && PResult[0] == PackageManager.PERMISSION_GRANTED) {
 
@@ -221,10 +218,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
         }
-    }
-
-    private boolean isExist(String phonenumber) {
-        return true;
     }
 
     public static String postObject(String completeUrl, JSONObject jsonObject) {
@@ -275,14 +268,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void onContactClick(int pos) {
 
-        Log.d("name clicked is ", result.get(pos).name + "  token is " + deviceTokens.get(pos));
+        Log.d("name clicked is ", result.get(pos).name + "  token is " + mDeviceTokens.get(pos));
 
         ArrayList<String> tokens = new ArrayList<>();
         ArrayList<String> names = new ArrayList<>();
 
 //        for(int i = 0; i < 1; i++)
 //        {
-        tokens.add(deviceTokens.get(pos));
+        tokens.add(mDeviceTokens.get(pos));
         names.add(result.get(pos).name);
 
 //        }
@@ -292,7 +285,7 @@ public class MainActivity extends AppCompatActivity {
         in.putStringArrayListExtra("tokens", tokens);
         in.putStringArrayListExtra("names", names);
 
-        fromPhoneCall = true;
+        mFromPhoneCall = true;
         startActivity(in);
 
 
@@ -314,7 +307,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<String> names = new ArrayList<>();
 
         for (int i = 0; i < checkedPos.size(); i++) {
-            tokens.add(deviceTokens.get(checkedPos.get(i)));
+            tokens.add(mDeviceTokens.get(checkedPos.get(i)));
             names.add(result.get(checkedPos.get(i)).name);
 
         }
@@ -329,18 +322,12 @@ public class MainActivity extends AppCompatActivity {
             in.putExtra("multi", false);
         }
 
-        fromPhoneCall = true;
+        mFromPhoneCall = true;
         startActivity(in);
 
     }
 
-    protected class GetLogoDetails extends AsyncTask<String, Void, ArrayList<ContactInfo>> {
-
-
-        public GetLogoDetails() {
-
-
-        }
+    protected class VerifyPhoneNumbers extends AsyncTask<String, Void, ArrayList<ContactInfo>> {
 
         @Override
         protected void onPreExecute() {
@@ -350,14 +337,14 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected ArrayList<ContactInfo> doInBackground(String... params) {
 
-            String requestUrl = "http://www.contactsyncer.com/verifyphonenumbers.php";
+            String requestUrl = Constants.VERIFY_PHONE_NUMBERS_REQUEST_URL;
 
 
             JSONObject jsonObject = new JSONObject();
 
             try {
 
-                jsonObject.put("phonenumbers", phoneList);
+                jsonObject.put("phonenumbers", mPhoneList);
 
             } catch (JSONException j) {
                 j.printStackTrace();
@@ -376,13 +363,14 @@ public class MainActivity extends AppCompatActivity {
                 return null;
             }
 
-            Log.e("response is", "" + response);
+            Log.d(TAG, response);
 
             JSONObject obj = null;
             try {
                 obj = new JSONObject(response);
             } catch (JSONException e) {
                 e.printStackTrace();
+                return null;
             }
 
 // Retrieve number array from JSON object.
@@ -393,8 +381,10 @@ public class MainActivity extends AppCompatActivity {
 
             result = new ArrayList<>();
 
-            deviceTokens.clear();
+            mDeviceTokens.clear();
             result.clear();
+
+            ArrayList<String> imgurls = new ArrayList<>();
 
             for (int i = 0; i < array.length(); i++) {
 
@@ -402,18 +392,22 @@ public class MainActivity extends AppCompatActivity {
                 //check if phone number exists on server
                 if (array.optString(i).equals("y")) {
                     ContactInfo ci = new ContactInfo();
-                    ci.phoneNumber = phoneList.get(i);
-                    ci.name = nameList.get(i);
+                    ci.phoneNumber = mPhoneList.get(i);
+                    ci.name = mNameList.get(i);
+                    mDeviceTokens.add(tokens.optString(i));
 
                     if ((imageUrls.optString(i).equals("noimage")) || imageUrls.optString(i).equals("")) {
                         ci.imageURL = imageUrls.optString(i);
+                        result.add(ci);
+
                     } else {
                         ci.imageURL = IMAGE_ACCESS_URL + imageUrls.optString(i) + ".png";
+
+                        if(!imgurls.contains(ci.imageURL)) {
+                            imgurls.add(ci.imageURL);
+                            result.add(ci);
+                        }
                     }
-
-                    deviceTokens.add(tokens.optString(i));
-
-                    result.add(ci);
 
                 }
 
@@ -436,22 +430,15 @@ public class MainActivity extends AppCompatActivity {
                         .title("Network error occured. Please try again")
                         .positiveText("Quit")
                         .show();
-
-
-
-
-
-              /*  Toast.makeText(MainActivity.this, "Internal error occured. Please try again", Toast.LENGTH_LONG).show();
-                MainActivity.this.finish();*/
                 return;
             }
 
             ContactAdapter ca = new ContactAdapter(s, MainActivity.this);
 
 
-            recList.setAdapter(ca);
+            mRecList.setAdapter(ca);
 
-            progressDialog.cancel();
+            mProgressDialog.cancel();
 
 
         }
@@ -461,11 +448,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if (recList.getAdapter() != null && fromPhoneCall == true) {
+        if (mRecList.getAdapter() != null && mFromPhoneCall == true) {
             createList();
         }
 
-        fromPhoneCall = false;
+        mFromPhoneCall = false;
         //getDelegate().onStart();
     }
 

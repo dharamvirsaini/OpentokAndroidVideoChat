@@ -39,22 +39,14 @@ public class MyFcmListenerService extends FirebaseMessagingService {
     }
 
     public void Notification() {
-        // Set Notification Title
-      //  String strtitle = getString(R.string.notificationtitle);
-        // Set Notification Text
-     //   String strtext = getString(R.string.notificationtext);
 
-        // Open NotificationView Class on Notification Click
         Intent in = new Intent(this, OngoingCallActivity.class);
         in.putExtra("SESSION_ID", mSessionID);
         in.putExtra("API_KEY", mAPIKEY);
         in.putExtra("TOKEN", mToken);
         in.putExtra("From", mFrom);
         in.putExtra("multi", multi);
-        // isMultiParty = getIntent().getBooleanExtra("multi", false);
 
-       // startActivity(in);
-        // Open NotificationView.java Activity
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, in,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 

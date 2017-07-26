@@ -5,21 +5,17 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -33,12 +29,10 @@ import java.io.IOException;
 
 public class EditProfileActivity extends AppCompatActivity implements View.OnClickListener{
 
-    ImageView profileImage, okImage;
+    private ImageView mProfileImage, mOkImage;
     private final int PICK_IMAGE_REQUEST = 574;
-
-    EditText nameText;
-
-    String name;
+    private EditText mNameText;
+    private String name;
     private Bitmap bitmap;
 
     @Override
@@ -46,56 +40,57 @@ public class EditProfileActivity extends AppCompatActivity implements View.OnCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_info);
 
-        profileImage = (ImageView)findViewById(R.id.imageView);
-        okImage = (ImageView) findViewById(R.id.imageView2);
+        mProfileImage = (ImageView)findViewById(R.id.imageView);
+        mOkImage = (ImageView) findViewById(R.id.imageView2);
 
-        nameText = (EditText)findViewById(R.id.editText2);
+        mNameText = (EditText)findViewById(R.id.editText2);
 
         if(getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("image_data", "noimage") != "noimage")
         {
             byte[] b = Base64.decode(getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("image_data", "noimage"), Base64.DEFAULT);
-             bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
-            profileImage.setImageBitmap(bitmap);
+            bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
+            mProfileImage.setImageBitmap(bitmap);
 
-            nameText.setText(getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("name", "Unknown"));
+            mNameText.setText(getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("name", "Unknown"));
         }
         
-        profileImage.setOnClickListener(this);
-        okImage.setOnClickListener(this);
+        mProfileImage.setOnClickListener(this);
+        mOkImage.setOnClickListener(this);
 
     }
 
     private void updateProfileInfo() {
 
-if(nameText.getText().toString().trim().equals(""))
-{
-    final Snackbar snackbar = Snackbar.make(findViewById(R.id.profile_info_container),"Please enter your name...",Snackbar.LENGTH_INDEFINITE);
-    snackbar.setAction("OK", new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            snackbar.dismiss();
-        }
-    });
-    snackbar.show();
-    return;
-}
+    if(mNameText.getText().toString().trim().equals("")){
 
-else
-{
-    name = nameText.getText().toString().trim();
-    Log.d("name is " , name);
+        final Snackbar snackbar = Snackbar.make(findViewById(R.id.profile_info_container),"Please enter your name...",Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction("OK", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                snackbar.dismiss();
+            }
+        });
+        snackbar.show();
+        return;
+    }
+    else{
 
-    new GetLogoDetails().execute();
-}
+        name = mNameText.getText().toString().trim();
+        Log.d("name is " , name);
+        new UpdateInfoOnServer().execute();
+    }
+
 }
 
 
     public String getStringImage(Bitmap bmp){
-        if (bmp!=null){
+        if (bmp != null){
+
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bmp.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             byte[] imageBytes = baos.toByteArray();
-            return Base64.encodeToString(imageBytes, Base64.DEFAULT);}
+            return Base64.encodeToString(imageBytes, Base64.DEFAULT);
+        }
 
         return "noimage";
     }
@@ -124,16 +119,7 @@ else
                 int nh = (int) ( bitmap2.getHeight() * (96.0 / bitmap2.getWidth()) );
                 bitmap = Bitmap.createScaledBitmap(bitmap2, 96, nh, true);
 
-                profileImage.setImageBitmap(bitmap);
-                // Log.d(TAG, String.valueOf(bitmap));
-
-               // Utils.toastS(AddNewQuestionActivity.this,"Image Added");
-                //dialogQuestionImage.setVisibility(View.VISIBLE);
-                //dialogQuestionImage.setImageBitmap(bitmap);
-
-                //setImageToQuestionList(bitmap);
-                //Setting the Bitmap to ImageView
-                // imageView.setImageBitmap(bitmap);
+                mProfileImage.setImageBitmap(bitmap);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -159,15 +145,9 @@ else
 
     }
 
-    protected class GetLogoDetails extends AsyncTask<String,Void,String> {
+    protected class UpdateInfoOnServer extends AsyncTask<String,Void,String> {
 
-MaterialDialog progressDialog;
-
-
-        public GetLogoDetails() {
-
-
-        }
+    MaterialDialog progressDialog;
 
         @Override
         protected void onPreExecute() {
@@ -184,9 +164,7 @@ MaterialDialog progressDialog;
         @Override
         protected String doInBackground(String... params) {
 
-            String requestUrl = "http://www.contactsyncer.com/profile_upload.php";
-
-
+            String requestUrl = Constants.UPDATE_PROFILE_REQUEST_URL;
 
             JSONObject jsonObject = new JSONObject();
 
@@ -194,13 +172,7 @@ MaterialDialog progressDialog;
 
                 jsonObject.put("name", getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("phone", null));
                 jsonObject.put("profileName", name);
-
                 jsonObject.put("image", getStringImage(bitmap));
-
-
-
-                // jsonObject.put("device_tokens", tokens);
-
 
             } catch (JSONException j) {
                 j.printStackTrace();
@@ -220,9 +192,6 @@ MaterialDialog progressDialog;
             }
 
             Log.e("response is", "" + response);
-
-
-
             return response;
         }
 
@@ -239,16 +208,12 @@ MaterialDialog progressDialog;
 
                 if(getStringImage(bitmap) != "noimage") {
 
-
                     editor.putString("image_data", getStringImage(bitmap));
                 }
 
-              //  editor.commit();
-               // editor.putString("phone", "9650774271");
-
                 editor.commit();
 
-                MainActivity.activityContext.finish();
+                MainActivity.sActivityContext.finish();
 
                 Intent in = new Intent(EditProfileActivity.this, MainActivity.class);
                 in.putExtra("code", getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("code", null));
