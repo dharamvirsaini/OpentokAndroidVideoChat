@@ -213,6 +213,7 @@ public class EditProfileActivity extends AppCompatActivity implements View.OnCli
 
                 editor.commit();
 
+                if(DisplayContactsActivity.sActivityContext != null)
                 DisplayContactsActivity.sActivityContext.finish();
 
                 Intent in = new Intent(EditProfileActivity.this, DisplayContactsActivity.class);
