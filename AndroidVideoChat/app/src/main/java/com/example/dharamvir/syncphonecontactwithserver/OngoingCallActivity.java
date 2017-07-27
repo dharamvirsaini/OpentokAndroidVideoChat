@@ -40,7 +40,7 @@ public class OngoingCallActivity extends AppCompatActivity
         Publisher.PublisherListener,
         Session.SessionListener {
 
-    private static final String TAG = "simple-multiparty " + DisplayContactsActivity.class.getSimpleName();
+    private static final String TAG = OngoingCallActivity.class.getSimpleName();
 
     private final int MAX_NUM_SUBSCRIBERS = 4;
 
