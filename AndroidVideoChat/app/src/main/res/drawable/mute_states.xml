@@ -4,7 +4,7 @@
     <item android:drawable="@drawable/mute_states"
         android:state_checked="true" />
     <!-- When not selected, use white-->
-    <item android:drawable="@drawable/unmute"
+    <item android:drawable="@drawable/nomute"
         android:state_checked="false"/>
 
     <item android:drawable="@drawable/mute_pressed"

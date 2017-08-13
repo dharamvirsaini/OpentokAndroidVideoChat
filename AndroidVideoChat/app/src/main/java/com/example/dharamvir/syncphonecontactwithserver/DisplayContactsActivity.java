@@ -432,6 +432,7 @@ public class DisplayContactsActivity extends AppCompatActivity {
                         .title("Network error occured. Please try again")
                         .positiveText("Quit")
                         .show();
+                mProgressDialog.cancel();
                 return;
             }
 

@@ -84,14 +84,14 @@ public class PhoneAuthActivity extends AppCompatActivity implements
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
 
 
-        /* Uncomment to bypass phone verification to run it on emulator
+       //  Uncomment to bypass phone verification to run it on emulator
 
-        SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putString("name", "Dharamvir");
-        editor.putString("phone", "9650774271");
+       /* SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString("name", "Your name");
+        editor.putString("phone", "Your phone number");
 
-        editor.commit();
-        */
+        editor.commit();*/
+
 
         //Push notification
         sendBroadcast(new Intent("com.google.android.intent.action.GTALK_HEARTBEAT"));

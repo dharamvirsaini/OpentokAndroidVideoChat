@@ -8,6 +8,8 @@ public class SignalMessage {
 
     private int type;
     private String data;
+    private String name = null;
+    private String code = null;
 
     public void setType(int type)
     {
@@ -24,5 +26,23 @@ public class SignalMessage {
 
     public String getData() {
         return data;
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

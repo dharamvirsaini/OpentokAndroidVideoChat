@@ -9,6 +9,8 @@
 
     <color name="publisher_border_color">#FFFFFF</color>
     <color name="call_bg">#35242e</color>
+    <color name="self_text_color">#2ecc71</color>
+
 
 
 </resources>

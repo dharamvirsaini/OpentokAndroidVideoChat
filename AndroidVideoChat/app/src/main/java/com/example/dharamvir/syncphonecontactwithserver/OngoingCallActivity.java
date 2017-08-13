@@ -1,11 +1,20 @@
 package com.example.dharamvir.syncphonecontactwithserver;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -21,6 +30,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.opentok.android.BaseVideoRenderer;
+import com.opentok.android.Connection;
 import com.opentok.android.OpentokError;
 import com.opentok.android.Publisher;
 import com.opentok.android.PublisherKit;
@@ -31,6 +41,8 @@ import com.opentok.android.Subscriber;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +50,7 @@ import java.util.List;
 public class OngoingCallActivity extends AppCompatActivity
         implements
         Publisher.PublisherListener,
-        Session.SessionListener {
+        Session.SessionListener, View.OnClickListener, Session.SignalListener {
 
     private static final String TAG = OngoingCallActivity.class.getSimpleName();
 
@@ -63,10 +75,13 @@ public class OngoingCallActivity extends AppCompatActivity
 
     boolean isMultiParty = true;
     boolean isIncoming = false;
+    private final int PICK_IMAGE_REQUEST = 574;
 
     String callerName;
     List<String> names, tokens;
     Boolean noResponse = false;
+    List<SignalMessage> mMessages;
+    private RecyclerView mRecList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +90,7 @@ public class OngoingCallActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.call_bg);
 
+        mMessages = new ArrayList<>();
 
         if(getIntent().getExtras() != null && getIntent().getStringExtra("API_KEY") != null)
         {
@@ -104,6 +120,20 @@ public class OngoingCallActivity extends AppCompatActivity
             mSubscriberViewContainer = (FrameLayout)findViewById(R.id.subscriber_container);
         }
 
+        findViewById(R.id.toggle_text).setOnClickListener(this);
+        findViewById(R.id.swap_camera).setOnClickListener(this);
+        findViewById(R.id.end_call_image).setOnClickListener(this);
+        findViewById(R.id.send_text).setOnClickListener(this);
+        findViewById(R.id.send_picture).setOnClickListener(this);
+        findViewById(R.id.minimize_chat).setOnClickListener(this);
+
+        mRecList = (RecyclerView)findViewById(R.id.text_chat);
+        mRecList.setHasFixedSize(true);
+        LinearLayoutManager llm = new LinearLayoutManager(this);
+        llm.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecList.setLayoutManager(llm);
+
+        mRecList.setAdapter(new MessageAdapter(mMessages, this));
 
         if (isIncoming == true) {
             connectToSession();
@@ -118,22 +148,24 @@ public class OngoingCallActivity extends AppCompatActivity
         }
 
         final ToggleButton  toggle = (ToggleButton) findViewById(R.id.toggle);
+        final ToggleButton  toggle_video = (ToggleButton) findViewById(R.id.toggle_video);
 
-        ((ImageView)findViewById(R.id.swap_camera)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                if(mPublisher != null)
-                    mPublisher.cycleCamera();
-            }
-        });
-
-        ((ImageView)findViewById(R.id.end_call_image)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-             //   disconnectSession();
-                endCall();
+        toggle_video.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    Log.d("DisplayContactsActivity", "checked");
+                    toggle_video.setBackgroundResource(R.drawable.no_video);
+                    if(mPublisher != null)
+                        mPublisher.setPublishVideo(false);
+                    // The toggle is enabled
+                } else {
+                    // The toggle is disabled
+                    Log.d("DisplayContactsActivity", "unchecked");
+                    toggle_video.setBackgroundResource(R.drawable.video);
+                    if(mPublisher != null)
+                        mPublisher.setPublishVideo(true);
+                }
             }
         });
 
@@ -211,6 +243,7 @@ public class OngoingCallActivity extends AppCompatActivity
                                 ((TextView)findViewById(R.id.textView2)).setText(callerName);
                             }
 
+                            mSession.setSignalListener(OngoingCallActivity.this);
                             Log.d("credentials are ", obj.getString("apiKey") + obj.getString("sessionId") + obj.getString("token"));
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -227,6 +260,187 @@ public class OngoingCallActivity extends AppCompatActivity
 // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
+
+    @Override
+    public void onClick(View v) {
+
+        switch(v.getId())
+        {
+            case R.id.swap_camera:
+                if(mPublisher != null)
+                    mPublisher.cycleCamera();
+                break;
+
+            case R.id.end_call_image:
+                endCall();
+                break;
+
+            case R.id.toggle_text:
+                startChat();
+                break;
+
+            case R.id.send_text:
+                sendTextMessage();
+                break;
+
+            case R.id.send_picture:
+                sendPictureMessage();
+                break;
+
+            case R.id.minimize_chat:
+                ((LinearLayout)findViewById(R.id.end_button_layout)).setVisibility(View.VISIBLE);
+                ((LinearLayout)findViewById(R.id.text_chat_layout)).setVisibility(View.GONE);
+                break;
+
+
+        }
+
+    }
+
+    private void sendTextMessage() {
+
+        EditText text = (EditText)findViewById(R.id.chat_text);
+
+        if(!text.getText().toString().trim().isEmpty()) {
+
+            JSONObject msg = new JSONObject();
+
+            try {
+                msg.put("name", getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("name", null));
+                msg.put("code", getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("phone", null));
+                msg.put("image", "n");
+                msg.put("data", text.getText().toString().trim());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            mSession.sendSignal("default", msg.toString());
+
+            SignalMessage message = new SignalMessage();
+            message.setData(text.getText().toString().trim());
+            message.setType(Constants.TYPE_SELF_TEXT);
+            mMessages.add(message);
+            text.setText("");
+            mRecList.getAdapter().notifyDataSetChanged();
+        }
+
+    }
+
+    private void sendPictureMessage() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data!=null && data.getData()!=null){
+
+            Uri imagePath = data.getData();
+
+            try {
+                //Getting the Bitmap from Gallery
+                Bitmap bitmap2 = MediaStore.Images.Media.getBitmap(getContentResolver(), imagePath);
+
+                //Scaling the bitmap as it might cause issues OPENGL RENDERING
+                //  Bitmap bitmap1= new Bitma(getResources() , bitmap2).getBitmap();
+                int nh = (int) ( bitmap2.getHeight() * (128.0 / bitmap2.getWidth()) );
+                String image = getStringImage(Bitmap.createScaledBitmap(bitmap2, 128, nh, true));
+               // String image = getStringImage(bitmap2);
+                JSONObject msg = new JSONObject();
+
+                try {
+                    msg.put("name", getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("name", null));
+                    msg.put("image", "y");
+                    msg.put("data", image);
+                    msg.put("code", getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("phone", null));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                mSession.sendSignal("default", msg.toString());
+
+                SignalMessage message = new SignalMessage();
+                message.setData(image);
+                message.setType(Constants.TYPE_SELF_IMAGE);
+                mMessages.add(message);
+                mRecList.getAdapter().notifyDataSetChanged();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public String getStringImage(Bitmap bmp){
+        if (bmp != null){
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bmp.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] imageBytes = baos.toByteArray();
+            return Base64.encodeToString(imageBytes, Base64.DEFAULT);
+        }
+
+        return "noimage";
+    }
+
+    private void startChat() {
+
+        ((LinearLayout)findViewById(R.id.end_button_layout)).setVisibility(View.GONE);
+
+        ((LinearLayout)findViewById(R.id.text_chat_layout)).setVisibility(View.VISIBLE);
+
+       /* if(textLayout.getVisibility() == View.VISIBLE)
+        {
+            textLayout.setVisibility(View.GONE);
+        }
+        else {
+            textLayout.setVisibility(View.VISIBLE);
+        }*/
+
+    }
+
+    @Override
+    public void onSignalReceived(Session session, String type, String message, Connection connection) {
+        Log.d(TAG, "message received is " + message);
+
+        if(mMessages.size() > 2) {
+            mRecList.scrollToPosition(mMessages.size() - 1);
+        }
+
+        try {
+            JSONObject json = new JSONObject(message);
+            String phone = json.getString("code");
+            String name = json.getString("name");
+            String image = json.getString("image");
+            String data = json.getString("data");
+
+            if (!phone.equals(getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("phone", null))) {
+
+                SignalMessage signal = new SignalMessage();
+                signal.setData(data);
+                signal.setName(name);
+                signal.setCode(phone);
+
+                if (image.equals("y")) {
+                    signal.setType(Constants.TYPE_REMOTE_IMAGE);
+                } else {
+                    signal.setType(Constants.TYPE_REMOTE_TEXT);
+                }
+
+                mMessages.add(signal);
+
+
+                mRecList.getAdapter().notifyDataSetChanged();
+            }
+            }
+        catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+
+
 
     protected class NotifyCaller extends AsyncTask<String,Void,Void> {
 
@@ -356,7 +570,7 @@ public class OngoingCallActivity extends AppCompatActivity
     public void onConnected(Session session) {
         Log.d(TAG, "onConnected: Connected to session " + session.getSessionId());
 
-        mPublisher = new Publisher.Builder(OngoingCallActivity.this).name("publisher").build();
+      /* mPublisher = new Publisher.Builder(OngoingCallActivity.this).name("publisher").build();
 
         mPublisher.setPublisherListener(this);
         mPublisher.setStyle(BaseVideoRenderer.STYLE_VIDEO_SCALE, BaseVideoRenderer.STYLE_VIDEO_FILL);
@@ -367,7 +581,7 @@ public class OngoingCallActivity extends AppCompatActivity
         else
             mPublisherViewContainer_FrameLayout.addView(mPublisher.getView());
 
-        mSession.publish(mPublisher);
+        mSession.publish(mPublisher);*/
     }
 
     @Override
@@ -477,17 +691,13 @@ public class OngoingCallActivity extends AppCompatActivity
         else
             ((TextView)findViewById(R.id.textView3)).setText("No Response.. Call Ended...");
 
+        ((LinearLayout)findViewById(R.id.text_chat_layout)).setVisibility(View.GONE);
+
         ((LinearLayout)findViewById(R.id.calling_text_layout)).setVisibility(View.VISIBLE);
 
         ((TextView)findViewById(R.id.textView3)).postDelayed(new Runnable() {
             @Override
             public void run() {
-               /* Intent in = new Intent(OngoingCallActivity.this, DisplayContactsActivity.class);
-                in.putExtra("code", getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, Context.MODE_PRIVATE).getString("code", null));
-                in.putExtra("phone", getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, Context.MODE_PRIVATE).getString("phone", null));
-
-                startActivity(in);*/
-
                disconnectSession();
                 OngoingCallActivity.this.finish();
 
