@@ -570,7 +570,7 @@ public class OngoingCallActivity extends AppCompatActivity
     public void onConnected(Session session) {
         Log.d(TAG, "onConnected: Connected to session " + session.getSessionId());
 
-      /* mPublisher = new Publisher.Builder(OngoingCallActivity.this).name("publisher").build();
+       mPublisher = new Publisher.Builder(OngoingCallActivity.this).name("publisher").build();
 
         mPublisher.setPublisherListener(this);
         mPublisher.setStyle(BaseVideoRenderer.STYLE_VIDEO_SCALE, BaseVideoRenderer.STYLE_VIDEO_FILL);
@@ -581,7 +581,7 @@ public class OngoingCallActivity extends AppCompatActivity
         else
             mPublisherViewContainer_FrameLayout.addView(mPublisher.getView());
 
-        mSession.publish(mPublisher);*/
+        mSession.publish(mPublisher);
     }
 
     @Override
