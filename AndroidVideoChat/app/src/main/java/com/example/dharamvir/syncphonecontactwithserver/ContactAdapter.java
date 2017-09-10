@@ -54,6 +54,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
         { //contact image exists on server
             contactViewHolder.vProfileImage.setVisibility(View.INVISIBLE);
 
+            contactViewHolder.vCircleProfileImage.setVisibility(View.VISIBLE);
             Glide.with(mContext).load(ci.imageURL)
                     .thumbnail(0.5f)
                     .crossFade()
