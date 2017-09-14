@@ -64,7 +64,7 @@ public class OngoingCallActivity extends AppCompatActivity
 
     private int numUserConnected;
 
-    private ArrayList<Subscriber> mSubscribers = new ArrayList<Subscriber>();
+   // private ArrayList<Subscriber> mSubscribers = new ArrayList<Subscriber>();
     private HashMap<Stream, Subscriber> mSubscriberStreams = new HashMap<Stream, Subscriber>();
 
     private RelativeLayout mPublisherViewContainer;
@@ -531,6 +531,7 @@ public class OngoingCallActivity extends AppCompatActivity
             return;
         }
         mSession.onResume();
+        mPublisher.onResume();
     }
 
     @Override
@@ -543,6 +544,7 @@ public class OngoingCallActivity extends AppCompatActivity
             return;
         }
         mSession.onPause();
+        mPublisher.onPause();
 
         if (isFinishing()) {
             disconnectSession();
@@ -620,17 +622,17 @@ public class OngoingCallActivity extends AppCompatActivity
             return;
         }
 
-        if (mSubscribers.size() + 1 > MAX_NUM_SUBSCRIBERS) {
+        if (mSubscriberStreams.size() + 1 > MAX_NUM_SUBSCRIBERS) {
             Toast.makeText(this, "New subscriber ignored. MAX_NUM_SUBSCRIBERS limit reached.", Toast.LENGTH_LONG).show();
             return;
         }
 
         final Subscriber subscriber = new Subscriber.Builder(OngoingCallActivity.this, stream).build();
         mSession.subscribe(subscriber);
-        mSubscribers.add(subscriber);
+       // mSubscribers.add(subscriber);
         mSubscriberStreams.put(stream, subscriber);
 
-        int position = mSubscribers.size() - 1;
+        int position = mSubscriberStreams.size() - 1;
         int id = getResources().getIdentifier("subscriberview" + (new Integer(position)).toString(), "id", OngoingCallActivity.this.getPackageName());
         RelativeLayout subscriberViewContainer = (RelativeLayout) findViewById(id);
 
@@ -664,13 +666,15 @@ public class OngoingCallActivity extends AppCompatActivity
             return;
         }
 
-        int position = mSubscribers.indexOf(subscriber);
-        int id = getResources().getIdentifier("subscriberview" + (new Integer(position)).toString(), "id", OngoingCallActivity.this.getPackageName());
+       // int position = mSubscribers.indexOf(subscriber);
+        //int id = getResources().getIdentifier("subscriberview" + (new Integer(position)).toString(), "id", OngoingCallActivity.this.getPackageName());
 
-        mSubscribers.remove(subscriber);
+       // mSubscribers.remove(subscriber);
         mSubscriberStreams.remove(stream);
 
-        RelativeLayout subscriberViewContainer = (RelativeLayout) findViewById(id);
+        RelativeLayout subscriberViewContainer = (RelativeLayout) subscriber.getView().getParent();
+
+       //old RelativeLayout subscriberViewContainer = (RelativeLayout) findViewById(id);
         subscriberViewContainer.removeView(subscriber.getView());
 
         if(numUserConnected == 0)
@@ -724,14 +728,26 @@ public class OngoingCallActivity extends AppCompatActivity
             return;
         }
 
-        if (mSubscribers.size() > 0) {
+        for (HashMap.Entry<Stream, Subscriber> entry : mSubscriberStreams.entrySet())
+        {
+            System.out.println(entry.getKey() + "/" + entry.getValue());
+
+            Subscriber subscriber = entry.getValue();
+
+            if (subscriber != null) {
+                mSession.unsubscribe(subscriber);
+                subscriber.destroy();
+            }
+        }
+
+     /*   if (mSubscribers.size() > 0) {
             for (Subscriber subscriber : mSubscribers) {
                 if (subscriber != null) {
                     mSession.unsubscribe(subscriber);
                     subscriber.destroy();
                 }
             }
-        }
+        }*/
 
         if (mPublisher != null) {
             if(isMultiParty)
