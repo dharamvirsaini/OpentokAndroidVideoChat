@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.opengl.GLSurfaceView;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -582,6 +583,10 @@ public class OngoingCallActivity extends AppCompatActivity
             mPublisherViewContainer.addView(mPublisher.getView());
         else
             mPublisherViewContainer_FrameLayout.addView(mPublisher.getView());
+
+        if (mPublisher.getView() instanceof GLSurfaceView) {
+            ((GLSurfaceView) mPublisher.getView()).setZOrderOnTop(true);
+        }
 
         mSession.publish(mPublisher);
     }
