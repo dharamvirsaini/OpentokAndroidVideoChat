@@ -20,10 +20,13 @@ b). Non UI blocking Code
 c). Image Caching  
 d). Memory Management  
 
-![Alt text](./user_registration.png?raw=true "Title")                         ![Alt text](./contact_list.png?raw=true "Title")
+![Alt text](./user_registration.png?raw=true "Title")                         
+![Alt text](./contact_list.png?raw=true "Title")
 
-![Alt text](./group_call.png?raw=true "Title")                                ![Alt text](./calling.png?raw=true "Title")
+![Alt text](./group_call.png?raw=true "Title")                               
+![Alt text](./calling.png?raw=true "Title")
 
-![Alt text](./text_messages.png?raw=true "Title")                             ![Alt text](./notification.png?raw=true "Title")
+![Alt text](./text_messages.png?raw=true "Title")                            
+![Alt text](./notification.png?raw=true "Title")
 
 
