@@ -19,3 +19,6 @@ a). Based on MVC architecture
 b). Non UI blocking Code  
 c). Image Caching  
 d). Memory Management  
+
+
+![Alt text](https://www.dropbox.com/s/rogcv9k93mipcek/device-2017-07-18-170504.png?dl=0)
