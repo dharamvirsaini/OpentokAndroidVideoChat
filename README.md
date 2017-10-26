@@ -22,3 +22,5 @@ d). Memory Management
 
 
 https://www.dropbox.com/s/rogcv9k93mipcek/device-2017-07-18-170504.png
+
+![Alt text](./calling.png?raw=true "Title")
