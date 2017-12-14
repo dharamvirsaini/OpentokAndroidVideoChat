@@ -24,6 +24,11 @@
     <string name="label_firebase_ui">FirebaseUI Auth</string>
     <string name="desc_firebase_ui">Use the FirebaseUI-Android library to authenticate with Firebase.</string>
 
+    <string name="rationale_video_app">This app needs access to your camera and mic to make video calls</string>
+
+    <string name="setting">Settings</string>
+    <string name="cancel">Cancel</string>
+
     <string name="hint_user_id">User ID</string>
     <string name="get_custom_token">Get Token</string>
     <string name="sign_in">Sign In</string>

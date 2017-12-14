@@ -53,6 +53,10 @@ public class EditProfileActivity extends AppCompatActivity implements View.OnCli
 
             mNameText.setText(getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("name", "Unknown"));
         }
+        else if(getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("name", "unknownname") != "unknownname")
+        {
+            mNameText.setText(getSharedPreferences(PhoneAuthActivity.MyPREFERENCES, MODE_PRIVATE).getString("name", "Unknown"));
+        }
         
         mProfileImage.setOnClickListener(this);
         mOkImage.setOnClickListener(this);

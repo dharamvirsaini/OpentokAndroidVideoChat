@@ -1,5 +1,6 @@
 package com.example.dharamvir.syncphonecontactwithserver;
 
+import android.*;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -8,6 +9,7 @@ import android.opengl.GLSurfaceView;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -48,10 +50,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.AppSettingsDialog;
+import pub.devrel.easypermissions.EasyPermissions;
+
 public class OngoingCallActivity extends AppCompatActivity
         implements
         Publisher.PublisherListener,
-        Session.SessionListener, View.OnClickListener, Session.SignalListener {
+        Session.SessionListener, View.OnClickListener, Session.SignalListener, EasyPermissions.PermissionCallbacks {
 
     private static final String TAG = OngoingCallActivity.class.getSimpleName();
 
@@ -137,7 +143,8 @@ public class OngoingCallActivity extends AppCompatActivity
         mRecList.setAdapter(new MessageAdapter(mMessages, this));
 
         if (isIncoming == true) {
-            connectToSession();
+           // connectToSession();
+            requestPermissions();
         }
         else {
             if(names.size() > 1)
@@ -145,7 +152,8 @@ public class OngoingCallActivity extends AppCompatActivity
             else
                 ((TextView)findViewById(R.id.textView2)).setText(names.get(0));
 
-            connectToSession();
+           // connectToSession();
+            requestPermissions();
         }
 
         final ToggleButton  toggle = (ToggleButton) findViewById(R.id.toggle);
@@ -188,6 +196,50 @@ public class OngoingCallActivity extends AppCompatActivity
             }
         });
 
+
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+
+        Log.d(TAG, "onPermissionsGranted:" + requestCode + ":" + perms.size());
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+
+        Log.d(TAG, "onPermissionsDenied:" + requestCode + ":" + perms.size());
+
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+            new AppSettingsDialog.Builder(this)
+                    .setTitle(getString(R.string.title_settings_dialog))
+                    .setRationale(getString(R.string.rationale_ask_again))
+                    .setPositiveButton(getString(R.string.setting))
+                    .setNegativeButton(getString(R.string.cancel))
+                    .setRequestCode(RC_SETTINGS_SCREEN_PERM)
+                    .build()
+                    .show();
+        }
+    }
+
+    @AfterPermissionGranted(RC_VIDEO_APP_PERM)
+    private void requestPermissions() {
+
+        String[] perms = {android.Manifest.permission.INTERNET, android.Manifest.permission.CAMERA, android.Manifest.permission.RECORD_AUDIO };
+        if (EasyPermissions.hasPermissions(this, perms)) {
+            // if there is no server URL set
+            connectToSession();
+        } else {
+            EasyPermissions.requestPermissions(this, getString(R.string.rationale_video_app), RC_VIDEO_APP_PERM, perms);
+        }
     }
 
     private void connectToSession() {
@@ -545,6 +597,8 @@ public class OngoingCallActivity extends AppCompatActivity
             return;
         }
         mSession.onPause();
+
+        if(mPublisher != null)
         mPublisher.onPause();
 
         if (isFinishing()) {
