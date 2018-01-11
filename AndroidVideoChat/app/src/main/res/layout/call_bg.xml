@@ -72,16 +72,6 @@
         </LinearLayout>
 
         <RelativeLayout
-            android:id="@+id/publisherview"
-            android:layout_height="200dp"
-            android:layout_width="150dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:paddingBottom="@dimen/activity_vertical_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin" >
-        </RelativeLayout>
-
-        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_alignParentBottom="true"
@@ -99,27 +89,47 @@
     </RelativeLayout>
 
 
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:visibility="visible"
         android:id="@+id/single_party">
 
-        <FrameLayout
+
+
+        <RelativeLayout
+            android:id="@+id/subscriber_container"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:id="@+id/subscriber_container"></FrameLayout>
 
-        <FrameLayout
-            android:layout_width="@dimen/publisher_width"
-            android:layout_height="@dimen/publisher_height"
-            android:id="@+id/publisher_container_framelayout"
-            android:layout_gravity="bottom|end"
-            android:layout_marginBottom="@dimen/publisher_bottom_margin"
-            android:padding="@dimen/publisher_padding"
-             />
+            >
 
-    </FrameLayout>
+        </RelativeLayout>
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/publisher_container_framelayout"
+        android:layout_width="@dimen/publisher_width"
+        android:layout_height="@dimen/publisher_height"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="@dimen/publisher_bottom_margin"
+        android:padding="@dimen/publisher_padding"
+
+        />
+
+    <ImageView
+        android:id="@+id/share_image"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        app:srcCompat="@drawable/share" />
+
 
 
 
@@ -132,7 +142,8 @@
 
 
 
-    <TextView
+
+        <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

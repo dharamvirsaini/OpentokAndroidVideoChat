@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.dharamvir.syncphonecontactwithserver">
+    package="com.videochat.dharamvir.syncphonecontactwithserver">
 
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/app_icon_256"
+        android:icon="@drawable/app_icon_new"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/video_call" />
+            android:resource="@drawable/app_icon_notification" />
 
-        <activity android:name=".PhoneAuthActivity">
+        <activity android:name="com.videochat.dharamvir.syncphonecontactwithserver.PhoneAuthActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -22,26 +24,26 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DisplayContactsActivity"
+            android:name="com.videochat.dharamvir.syncphonecontactwithserver.DisplayContactsActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen" />
         <activity
-            android:name=".OngoingCallActivity"
+            android:name="com.videochat.dharamvir.syncphonecontactwithserver.OngoingCallActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"
             android:windowSoftInputMode="adjustPan"/>
 
-        <service android:name=".MyInstanceIDListenerService">
+        <service android:name="com.videochat.dharamvir.syncphonecontactwithserver.MyInstanceIDListenerService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-        <service android:name=".MyFcmListenerService">
+        <service android:name="com.videochat.dharamvir.syncphonecontactwithserver.MyFcmListenerService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
         <activity
-            android:name=".EditProfileActivity"
+            android:name="com.videochat.dharamvir.syncphonecontactwithserver.EditProfileActivity"
             android:label="@string/title_activity_edit_profile"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"></activity>
     </application>

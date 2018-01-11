@@ -15,6 +15,58 @@
       },
       "oauth_client": [
         {
+          "client_id": "1030006831408-vfgj65hpfeqv9m729rsvogpt8ualb5ck.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.dharamvir.syncphonecontactwithserver",
+            "certificate_hash": "f5b666f4eecdea0ec6514b2d5089c1e185ffdbe3"
+          }
+        },
+        {
+          "client_id": "1030006831408-nub0b98a9sfjk3jtlfs969fnusnn96rn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.dharamvir.syncphonecontactwithserver",
+            "certificate_hash": "6f59dd53753eadfbf80c20a920d26ca98bba9773"
+          }
+        },
+        {
+          "client_id": "1030006831408-6rv7gan6ppc5uugi7kliov7f76mn6our.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4MYxOIOVublEQmYJRPh6TbeYXXTCSbjU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1030006831408-6rv7gan6ppc5uugi7kliov7f76mn6our.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1030006831408:android:fd639fcce57a3016",
+        "android_client_info": {
+          "package_name": "com.videochat.dharamvir.syncphonecontactwithserver"
+        }
+      },
+      "oauth_client": [
+        {
           "client_id": "1030006831408-6rv7gan6ppc5uugi7kliov7f76mn6our.apps.googleusercontent.com",
           "client_type": 3
         }
